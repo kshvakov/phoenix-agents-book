@@ -1,3 +1,12 @@
+---
+title: "README (do not publish)"
+sitemap:
+  disable: true
+build:
+  render: never
+  list: never
+---
+
 # Autonomous Agents: transforming engineering and business
 
 This is the **English translation** of the book (work in progress).

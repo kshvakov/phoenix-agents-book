@@ -16,6 +16,24 @@
     {{- end -}}
     <meta name="description" content="{{ $desc | plainify | truncate 160 }}">
 
+    {{ if .Site.Params.yandex_verification }}
+    <meta name="yandex-verification" content="{{ .Site.Params.yandex_verification }}" />
+    {{ end }}
+    {{ if .Site.Params.google_verification }}
+    <meta name="google-site-verification" content="{{ .Site.Params.google_verification }}" />
+    {{ end }}
+
+    {{- $gaID := .Site.Params.google_analytics_id | default "G-42YNTP8CJM" -}}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaID }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '{{ $gaID }}');
+    </script>
+
     <title>{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}</title>
 
     <link rel="icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
@@ -48,7 +66,7 @@
     <div class="container">
         <header>
             <h1>
-                <a href="{{ .Site.Home.RelPermalink }}" style="text-decoration: none; color: inherit;">
+                <a href="/" style="text-decoration: none; color: inherit;">
                     <span class="site-title">
                         <span class="site-title__name">{{ .Site.Params.headerTitle | default "Кирилл Шваков" }}</span>
                         <span class="site-title__subtitle">{{ .Site.Title }}</span>
@@ -60,16 +78,12 @@
                     <span class="theme-icon">☀</span>
                 </button>
                 <div class="lang-switcher">
-                    {{- $current := . -}}
                     {{- range .Sites -}}
                         {{- $lang := .Language.Lang -}}
-                        {{- $isActive := eq $lang $current.Site.Language.Lang -}}
-                        {{- $url := .Home.RelPermalink -}}
-                        {{- if not $isActive -}}
-                            {{- $candidates := where $current.AllTranslations "Language.Lang" $lang -}}
-                            {{- if gt (len $candidates) 0 -}}
-                                {{- $url = (index $candidates 0).RelPermalink -}}
-                            {{- end -}}
+                        {{- $isActive := eq $lang $.Site.Language.Lang -}}
+                        {{- $url := "/" -}}
+                        {{- if eq $lang "en" -}}
+                            {{- $url = "/en/" -}}
                         {{- end -}}
                         <a class="lang-btn{{ if $isActive }} active{{ end }}"
                            href="{{ $url }}"
@@ -98,6 +112,21 @@
     </script>
 
     <script src="{{ "assets/site.js" | relURL }}"></script>
+    {{ if .Site.Params.metrika_id }}
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id={{ .Site.Params.metrika_id }}', 'ym');
+
+        ym({{ .Site.Params.metrika_id }}, 'init', {ssr:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/{{ .Site.Params.metrika_id }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+    {{ end }}
 </body>
 </html>
 

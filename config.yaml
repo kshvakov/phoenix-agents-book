@@ -7,6 +7,12 @@ enableRobotsTXT: true
 defaultContentLanguage: 'ru'
 defaultContentLanguageInSubdir: true
 
+disableKinds:
+  - taxonomy
+  - term
+
+taxonomies: {}
+
 languages:
   ru:
     languageName: 'Русский'
@@ -15,6 +21,8 @@ languages:
     contentDir: book/ru
     params:
       headerTitle: 'Кирилл Шваков'
+    outputs:
+      home: ["HTML", "RSS"]
   en:
     languageName: 'English'
     weight: 2
@@ -22,12 +30,18 @@ languages:
     contentDir: book/en
     params:
       headerTitle: 'Kirill Shvakov'
+    outputs:
+      home: ["HTML", "RSS"]
 
 params:
   description: 'Книга о трансформации инженерной практики через автономных AI‑агентов: от промптов и SOP до качества, безопасности и управления изменениями.'
+  yandex_verification: '0407992383df341f'
+  google_verification: 'Xg8NZGFTAmQMSBUZ9FVmv5zeiQzm2vV5-sQcoTPZ9uE'
+  metrika_id: '106153539'
+  google_analytics_id: 'G-42YNTP8CJM'
 
 ignoreFiles:
-  - 'README\\.md$'
+  - '(?i)readme\\.md$'
 
 markup:
   goldmark:

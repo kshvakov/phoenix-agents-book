@@ -1,3 +1,12 @@
+---
+title: "README (не публиковать)"
+sitemap:
+  disable: true
+build:
+  render: never
+  list: never
+---
+
 # Автономные агенты: как трансформировать инженерию и бизнес
 
 **В стиле "The Phoenix Project" — от хаоса к эффективности через AI-агентов**
