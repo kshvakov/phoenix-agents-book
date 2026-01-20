@@ -1,0 +1,62 @@
+{{ define "main" }}
+<section class="content-section" lang="{{ .Language.Lang }}">
+    {{ if .IsHome }}
+        <div class="bio">
+            {{ .Content }}
+        </div>
+
+        {{ $chapters := where .Site.RegularPages "Section" "chapters" }}
+        {{ if gt (len $chapters) 0 }}
+        <div class="articles-section">
+            <h2>{{ if eq .Language.Lang "ru" }}Главы{{ else }}Chapters{{ end }}</h2>
+            <div class="articles">
+                {{ range sort $chapters "Params.weight" "asc" }}
+                <a href="{{ .RelPermalink }}" class="article-card">
+                    <h3>{{ .Title }}</h3>
+                    <p>{{ .Description }}</p>
+                    <span class="article-source">{{ if eq $.Language.Lang "ru" }}Глава{{ else }}Chapter{{ end }}</span>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+
+        {{ $appendix := where .Site.RegularPages "Section" "appendix" }}
+        {{ if gt (len $appendix) 0 }}
+        <div class="articles-section">
+            <h2>{{ if eq .Language.Lang "ru" }}Приложения{{ else }}Appendix{{ end }}</h2>
+            <div class="articles">
+                {{ range sort $appendix "Params.weight" "asc" }}
+                <a href="{{ .RelPermalink }}" class="article-card">
+                    <h3>{{ .Title }}</h3>
+                    <p>{{ .Description }}</p>
+                    <span class="article-source">{{ if eq $.Language.Lang "ru" }}Приложение{{ else }}Appendix{{ end }}</span>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+    {{ else }}
+        <div class="bio">
+            {{ if .Title }}<p><strong>{{ .Title }}</strong></p>{{ end }}
+            {{ if .Content }}{{ .Content }}{{ end }}
+        </div>
+
+        {{ if gt (len .Pages) 0 }}
+        <div class="articles-section">
+            <h2>{{ if eq .Language.Lang "ru" }}Список{{ else }}List{{ end }}</h2>
+            <div class="articles">
+                {{ range .Pages.ByWeight }}
+                <a href="{{ .RelPermalink }}" class="article-card">
+                    <h3>{{ .Title }}</h3>
+                    <p>{{ .Description }}</p>
+                    <span class="article-source">{{ if eq $.Language.Lang "ru" }}Глава{{ else }}Item{{ end }}</span>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+    {{ end }}
+</section>
+{{ end }}
+

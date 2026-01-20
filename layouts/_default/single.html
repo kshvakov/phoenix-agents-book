@@ -1,0 +1,57 @@
+{{ define "main" }}
+<article class="post">
+    <header class="post-header">
+        <h1 class="post-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="post-content">
+        {{ if and .IsPage (gt (len .TableOfContents) 0) }}
+        <details class="raw-transcript-details" style="margin-bottom: 1.5rem;">
+            <summary>{{ if eq .Language.Lang "ru" }}Оглавление главы{{ else }}Chapter contents{{ end }}</summary>
+            <div class="toc" style="margin-top: 1rem;">
+                {{ .TableOfContents }}
+            </div>
+        </details>
+        {{ end }}
+        {{ if .Content }}
+        <div class="post-body">
+            {{ .Content }}
+        </div>
+        {{ end }}
+    </div>
+
+    <footer class="post-footer">
+        {{- $current := . -}}
+        {{- $pages := sort (where .Site.RegularPages "Section" $current.Section) "Params.weight" "asc" -}}
+        {{- $s := newScratch -}}
+        {{- $s.Set "idx" -1 -}}
+        {{- range $i, $p := $pages -}}
+            {{- if eq $p.RelPermalink $current.RelPermalink -}}
+                {{- $s.Set "idx" $i -}}
+            {{- end -}}
+        {{- end -}}
+        {{- $idx := $s.Get "idx" -}}
+        {{- $prev := (cond (gt $idx 0) (index $pages (sub $idx 1)) nil) -}}
+        {{- $next := (cond (and (ge $idx 0) (lt (add $idx 1) (len $pages))) (index $pages (add $idx 1)) nil) -}}
+        {{- if or $prev $next -}}
+        <div style="display:flex; justify-content:space-between; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+            {{- with $prev -}}
+                <a href="{{ .RelPermalink }}" class="back-link">← {{ if eq $current.Language.Lang "ru" }}Предыдущая{{ else }}Previous{{ end }}: {{ .Title }}</a>
+            {{- end -}}
+            </div>
+            <div style="text-align:right;">
+            {{- with $next -}}
+                <a href="{{ .RelPermalink }}" class="back-link">{{ if eq $current.Language.Lang "ru" }}Следующая{{ else }}Next{{ end }}: {{ .Title }} →</a>
+            {{- end -}}
+            </div>
+        </div>
+        {{- end -}}
+        <a href="{{ .Site.Home.RelPermalink }}" class="back-link">← {{ if eq .Language.Lang "ru" }}Назад к оглавлению{{ else }}Back to Contents{{ end }}</a>
+    </footer>
+</article>
+{{ end }}
+
+{{ define "head" }}
+{{ end }}
+

@@ -1,0 +1,75 @@
+{{- /*
+  Shortcode для встраивания плееров Kinescope (видео и плейлисты).
+
+  Документация: https://docs.kinescope.ru/integracii/integratsiya-s-hugo/
+
+  Примеры:
+  {{< kinescope id="pcFNnQGsD59CMKte2SQQaz" >}}
+  {{< kinescope url="https://kinescope.io/embed/vWDRB3ukFnwLUp6yWaqWeZ" >}}
+  {{< kinescope url="https://kinescope.io/pl/iUsqhEMVWJCcUqg9Ay9gmD" >}}
+*/ -}}
+
+{{- $url := .Get "url" -}}
+{{- $id := .Get "id" -}}
+{{- $type := .Get "type" | default "" -}}
+{{- $width := .Get "width" -}}
+{{- $height := .Get "height" -}}
+{{- $ratio := .Get "ratio" | default "56.25" -}}
+{{- $allow := .Get "allow" | default "autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write; screen-wake-lock;" -}}
+
+{{- /* Валидация: должен быть указан либо url, либо id */ -}}
+{{- if and (not $url) (not $id) -}}
+  {{- errorf "kinescope shortcode: необходимо указать либо 'url', либо 'id' параметр" -}}
+{{- end -}}
+
+{{- /* Определяем embed URL */ -}}
+{{- $embedUrl := "" -}}
+{{- if $url -}}
+  {{- if strings.HasPrefix $url "https://kinescope.io/embed/" -}}
+    {{- $embedUrl = $url -}}
+  {{- else if strings.HasPrefix $url "https://kinescope.io/pl/" -}}
+    {{- $embedUrl = strings.Replace $url "https://kinescope.io/pl/" "https://kinescope.io/embed/pl/" 1 -}}
+  {{- else if strings.HasPrefix $url "https://kinescope.io/" -}}
+    {{- $embedUrl = strings.Replace $url "https://kinescope.io/" "https://kinescope.io/embed/" 1 -}}
+  {{- else -}}
+    {{- errorf "kinescope shortcode: неподдерживаемый формат URL: %s" $url -}}
+  {{- end -}}
+{{- else -}}
+  {{- /* По id можно указать type=\"pl\" для плейлистов */ -}}
+  {{- if eq $type "pl" -}}
+    {{- $embedUrl = printf "https://kinescope.io/embed/pl/%s" $id -}}
+  {{- else -}}
+    {{- $embedUrl = printf "https://kinescope.io/embed/%s" $id -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Добавляем в URL любые дополнительные параметры (seek, duration, autoplay, player_id, ...) */ -}}
+{{- $reserved := slice "url" "id" "type" "width" "height" "ratio" "allow" -}}
+{{- $qs := slice -}}
+{{- range $k, $v := .Params -}}
+  {{- if not (in $reserved $k) -}}
+    {{- $qs = $qs | append (printf "%s=%s" $k (urlquery $v)) -}}
+  {{- end -}}
+{{- end -}}
+{{- if gt (len $qs) 0 -}}
+  {{- $embedUrl = printf "%s?%s" $embedUrl (delimit $qs "&") -}}
+{{- end -}}
+
+{{- /* Стили контейнера: либо фиксированный размер, либо адаптивное соотношение сторон */ -}}
+{{- $containerStyle := "" -}}
+{{- if or $width $height -}}
+  {{- $containerStyle = printf "padding-bottom:0;height:%s;width:%s;" (default "360px" $height) (default "100%" $width) -}}
+{{- else -}}
+  {{- $containerStyle = printf "padding-bottom:%s%%;" $ratio -}}
+{{- end -}}
+
+<div class="video-embed" style="{{ $containerStyle }}">
+  <iframe
+    src="{{ $embedUrl }}"
+    loading="lazy"
+    frameborder="0"
+    allow="{{ $allow }}"
+    allowfullscreen>
+  </iframe>
+</div>
+

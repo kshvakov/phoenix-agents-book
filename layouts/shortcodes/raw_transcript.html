@@ -1,0 +1,14 @@
+{{ $transcriptPath := .Get "path" }}
+{{ if $transcriptPath }}
+{{ $filePath := printf "static%s" $transcriptPath }}
+{{ if fileExists $filePath }}
+{{ $content := readFile $filePath }}
+<details class="raw-transcript-details">
+    <summary>{{ .Get "title" | default "Показать сырой текст расшифровки" }}</summary>
+    <pre class="raw-transcript">{{ $content }}</pre>
+</details>
+{{ else }}
+<p><em>Файл расшифровки не найден.</em></p>
+{{ end }}
+{{ end }}
+

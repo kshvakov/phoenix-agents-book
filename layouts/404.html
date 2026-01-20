@@ -1,0 +1,69 @@
+{{ define "main" }}
+<div class="error-container">
+    <div class="error-code">404</div>
+    <div class="error-message">
+        {{ if eq .Language.Lang "ru" }}
+        Страница не найдена
+        {{ else }}
+        Page not found
+        {{ end }}
+    </div>
+    <a href="{{ .Site.Home.RelPermalink }}" class="back-link">
+        {{ if eq .Language.Lang "ru" }}
+        Вернуться на главную
+        {{ else }}
+        Go to homepage
+        {{ end }}
+    </a>
+</div>
+{{ end }}
+
+{{ define "head" }}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 3rem 1rem;
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .error-code {
+        font-size: 6rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+        opacity: 0.3;
+        line-height: 1;
+    }
+    .error-message {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-color);
+    }
+    .back-link {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        background-color: var(--link-color);
+        color: var(--lang-btn-active-text);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .back-link:hover {
+        background-color: var(--link-hover-color);
+        transform: translateY(-2px);
+    }
+    @media (max-width: 600px) {
+        .error-code {
+            font-size: 4rem;
+        }
+        .error-message {
+            font-size: 1.25rem;
+        }
+    }
+</style>
+{{ end }}
+

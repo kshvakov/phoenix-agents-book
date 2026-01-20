@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="{{ .Language.Lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {{- $desc := "" -}}
+    {{- if .Params.description -}}
+        {{- $desc = .Params.description -}}
+    {{- else if .Description -}}
+        {{- $desc = .Description -}}
+    {{- else if .Summary -}}
+        {{- $desc = .Summary -}}
+    {{- else if .Site.Params.description -}}
+        {{- $desc = .Site.Params.description -}}
+    {{- end -}}
+    <meta name="description" content="{{ $desc | plainify | truncate 160 }}">
+
+    <title>{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}</title>
+
+    <link rel="icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
+    <link rel="stylesheet" href="{{ "assets/site.css" | relURL }}">
+
+    <link rel="canonical" href="{{ .Permalink }}">
+
+    {{ range .AllTranslations }}
+    <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+    {{ end }}
+    <link rel="alternate" hreflang="x-default" href="{{ .Sites.Default.Home.Permalink }}">
+
+    <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+    <meta property="og:title" content="{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}">
+    <meta property="og:description" content="{{ $desc | plainify | truncate 160 }}">
+    <meta property="og:url" content="{{ .Permalink }}">
+
+    {{ block "head" . }}{{ end }}
+</head>
+<body>
+    {{ if .IsPage }}
+    <div class="reading-progress">
+        <div class="reading-progress__bar"></div>
+    </div>
+    <button class="scroll-to-top" aria-label="{{ if eq .Language.Lang "ru" }}Наверх{{ else }}Scroll to top{{ end }}">
+        <span class="scroll-to-top__icon">↑</span>
+    </button>
+    {{ end }}
+
+    <div class="container">
+        <header>
+            <h1>
+                <a href="{{ .Site.Home.RelPermalink }}" style="text-decoration: none; color: inherit;">
+                    <span class="site-title">
+                        <span class="site-title__name">{{ .Site.Params.headerTitle | default "Кирилл Шваков" }}</span>
+                        <span class="site-title__subtitle">{{ .Site.Title }}</span>
+                    </span>
+                </a>
+            </h1>
+            <div class="header-controls">
+                <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">
+                    <span class="theme-icon">☀</span>
+                </button>
+                <div class="lang-switcher">
+                    {{- $current := . -}}
+                    {{- range .Sites -}}
+                        {{- $lang := .Language.Lang -}}
+                        {{- $isActive := eq $lang $current.Site.Language.Lang -}}
+                        {{- $url := .Home.RelPermalink -}}
+                        {{- if not $isActive -}}
+                            {{- $candidates := where $current.AllTranslations "Language.Lang" $lang -}}
+                            {{- if gt (len $candidates) 0 -}}
+                                {{- $url = (index $candidates 0).RelPermalink -}}
+                            {{- end -}}
+                        {{- end -}}
+                        <a class="lang-btn{{ if $isActive }} active{{ end }}"
+                           href="{{ $url }}"
+                           lang="{{ $lang }}"
+                           hreflang="{{ $lang }}"
+                           {{ if $isActive }}aria-current="page"{{ end }}>{{ .Language.LanguageName }}</a>
+                    {{- end -}}
+                </div>
+            </div>
+        </header>
+
+        <main>
+            {{ block "main" . }}{{ end }}
+        </main>
+    </div>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "{{ .Site.Title }}",
+      "description": "{{ $desc | plainify | truncate 300 }}",
+      "url": "{{ .Site.BaseURL }}",
+      "inLanguage": "{{ .Language.Lang }}"
+    }
+    </script>
+
+    <script src="{{ "assets/site.js" | relURL }}"></script>
+</body>
+</html>
+

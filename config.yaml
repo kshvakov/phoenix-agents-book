@@ -1,0 +1,36 @@
+baseURL: 'https://kshvakov.github.io/phoenix-agents-book/'
+languageCode: 'ru'
+title: 'Phoenix Agents Book'
+
+enableRobotsTXT: true
+
+defaultContentLanguage: 'ru'
+defaultContentLanguageInSubdir: true
+
+languages:
+  ru:
+    languageName: 'Русский'
+    weight: 1
+    title: 'Автономные агенты: как трансформировать инженерию и бизнес'
+    contentDir: book/ru
+    params:
+      headerTitle: 'Кирилл Шваков'
+  en:
+    languageName: 'English'
+    weight: 2
+    title: 'Autonomous Agents: transforming engineering and business'
+    contentDir: book/en
+    params:
+      headerTitle: 'Kirill Shvakov'
+
+params:
+  description: 'Книга о трансформации инженерной практики через автономных AI‑агентов: от промптов и SOP до качества, безопасности и управления изменениями.'
+
+ignoreFiles:
+  - 'README\\.md$'
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
