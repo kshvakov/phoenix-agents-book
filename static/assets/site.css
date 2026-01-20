@@ -489,37 +489,36 @@ h1 {
 }
 
 /* Tables (Markdown) */
-.post-body table,
-.bio table {
-    width: 100%;
+.table-wrap {
     margin: 1.5rem 0;
-    border-collapse: collapse;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    overflow: hidden;
-    display: block; /* allow horizontal scroll on narrow screens */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.post-body thead th,
-.bio thead th {
+.table-wrap table {
+    margin: 0;
+    border-collapse: collapse;
+    /* allow wide tables to scroll without shrinking the layout */
+    width: max-content;
+    min-width: 100%;
+}
+
+.table-wrap thead th {
     font-weight: 500;
     text-align: left;
     background: var(--inline-code-bg);
 }
 
-.post-body th,
-.post-body td,
-.bio th,
-.bio td {
+.table-wrap th,
+.table-wrap td {
     border: 1px solid var(--border-color);
     padding: 0.6rem 0.75rem;
     vertical-align: top;
 }
 
-.post-body table code,
-.bio table code {
+.table-wrap table code {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 0.9em;
 }
@@ -549,6 +548,44 @@ h1 {
     -webkit-overflow-scrolling: touch;
     tab-size: 4;
 }
+
+.post-body .highlight {
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--code-block-bg);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.post-body .highlight pre {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    border: none;
+    border-radius: 0;
+    background: transparent !important; /* перебить inline chroma background */
+    color: var(--code-text) !important; /* перебить inline chroma base color */
+    overflow: visible;
+    tab-size: 4;
+}
+
+.post-body .highlight code {
+    background: transparent !important;
+}
+
+.post-body .highlight code,
+.post-body .highlight pre code {
+    color: var(--code-text) !important;
+}
+
+/* Chroma uses inline colors; remap them to a muted editor-like palette */
+.post-body .highlight [style*="color:#66d9ef"] { color: var(--code-keyword) !important; } /* keywords (monokai cyan) */
+.post-body .highlight [style*="color:#ae81ff"] { color: var(--code-number) !important; } /* numbers (monokai purple) */
+.post-body .highlight [style*="color:#e6db74"] { color: var(--code-string) !important; } /* strings (monokai yellow) */
+.post-body .highlight [style*="color:#75715e"] { color: var(--code-comment) !important; } /* comments (monokai gray) */
+.post-body .highlight [style*="color:#f92672"] { color: var(--code-operator) !important; } /* operators (monokai pink) */
+.post-body .highlight [style*="color:#fd971f"] { color: var(--code-func) !important; } /* functions/types (monokai orange) */
+.post-body .highlight [style*="color:#a6e22e"] { color: var(--code-string) !important; } /* identifiers (monokai green) */
 
 .post-body pre code {
     display: block;
