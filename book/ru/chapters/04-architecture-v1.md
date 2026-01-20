@@ -263,32 +263,27 @@ Bishop: "ADR-1 объясняет: модульный монолит для v1 (
 
 ### Компоненты
 
-```mermaid
-graph TB
-    Web["Web Frontend"]
-    API["API Gateway"]
-    Catalog["Catalog"]
-    Cart["Cart"]
-    Checkout["Checkout"]
-    Orders["Orders"]
-    Payments["Payments (граница PCI)"]
-    Inventory["Inventory/ERP Integration"]
-    Store["Data Store (PostgreSQL)"]
-    Audit["Audit Logger"]
+```text
+                 [Web Frontend]
+                       |
+                       v
+                  [API Gateway]
+                 /     |      \
+                v      v       v
+           [Catalog] [Cart]  [Checkout]
+              |        |        |   \
+              v        v        v    v
+         [Data Store] [Data Store] [Orders]  [Payments (граница PCI)]
+                                     |   \            |
+                                     v    v           v
+                               [Data Store] [Inventory/ERP Integration]
+                                     |
+                                     v
+                               [Audit Logger]
 
-    Web --> API
-    API --> Catalog
-    API --> Cart
-    API --> Checkout
-    Checkout --> Orders
-    Checkout --> Payments
-    Orders --> Inventory
-    Catalog --> Store
-    Cart --> Store
-    Checkout --> Store
-    Orders --> Store
-    Payments --> Audit
-    Orders --> Audit
+Дополнительно:
+- Orders  -> Audit Logger
+- Payments -> Audit Logger
 ```
 
 ### Поток данных

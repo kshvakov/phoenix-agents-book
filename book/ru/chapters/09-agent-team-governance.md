@@ -63,24 +63,23 @@ Bill Palmer созывает людей в конференц‑колл.
 
 ### Схема: как выглядит поток работ
 
-```mermaid
-flowchart TD
-  incidentIntake[IncidentIntake] --> orchestrator[Orchestrator]
-  orchestrator --> contextStore[ContextStore]
-  orchestrator --> analyst[AnalystAgent]
-  orchestrator --> triage[TriageAgent]
-  orchestrator --> sre[SREAgent]
-  orchestrator --> reviewer[ReviewerAgent]
-  analyst --> contextStore
-  triage --> contextStore
-  sre --> contextStore
-  reviewer --> contextStore
-  orchestrator --> decisionPacket[DecisionPacket]
-  decisionPacket --> humanApproval[HumanApprovalOptional]
-  humanApproval --> execute[ExecuteChange]
-  execute --> auditLog[AuditLog]
-  decisionPacket --> postmortem[PostmortemInputs]
-  auditLog --> postmortem
+```text
+IncidentIntake
+    |
+    v
+Orchestrator  ----------------------->  ContextStore
+    |                      ^              ^
+    |                      |              |
+    +--> AnalystAgent -----+--------------+
+    +--> TriageAgent ------+--------------+
+    +--> SREAgent ---------+--------------+
+    +--> ReviewerAgent ----+--------------+
+    |
+    v
+DecisionPacket  --->  [HumanApproval (optional)]  --->  ExecuteChange  --->  AuditLog
+     \                                                           \
+      \                                                           v
+       +------------------------------->  PostmortemInputs  <------+
 ```
 
 ---
