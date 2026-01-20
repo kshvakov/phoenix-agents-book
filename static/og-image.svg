@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      .bg { fill: #0a0a0a; }
+      .title { fill: #ffffff; font: 700 64px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+      .subtitle { fill: #cfcfcf; font: 400 34px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+      .author { fill: #a0a0a0; font: 500 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="630"/>
+
+  <text class="title" x="80" y="210">Phoenix Agents Book</text>
+  <text class="subtitle" x="80" y="290">Автономные агенты: трансформация инженерии и бизнеса</text>
+
+  <text class="author" x="80" y="520">Кирилл Шваков</text>
+</svg>
+

@@ -35,6 +35,9 @@ languages:
 
 params:
   description: 'Книга о трансформации инженерной практики через автономных AI‑агентов: от промптов и SOP до качества, безопасности и управления изменениями.'
+  og_image: 'og-image.svg'
+  author_name: 'Кирилл Шваков'
+  author_url: 'https://kshvakov.github.io/'
   yandex_verification: '0407992383df341f'
   google_verification: 'Xg8NZGFTAmQMSBUZ9FVmv5zeiQzm2vV5-sQcoTPZ9uE'
   metrika_id: '106153539'

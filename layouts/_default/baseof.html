@@ -39,6 +39,10 @@
     <link rel="icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
     <link rel="stylesheet" href="{{ "assets/site.css" | relURL }}">
 
+    {{- with .Site.Home.OutputFormats.Get "RSS" -}}
+    <link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }} RSS" href="{{ .Permalink }}">
+    {{- end -}}
+
     <link rel="canonical" href="{{ .Permalink }}">
 
     {{ range .AllTranslations }}
@@ -46,10 +50,44 @@
     {{ end }}
     <link rel="alternate" hreflang="x-default" href="{{ .Sites.Default.Home.Permalink }}">
 
+    {{- $ogImage := .Site.Params.og_image -}}
+    {{- $ogImageAbs := "" -}}
+    {{- if $ogImage -}}
+        {{- $ogImageAbs = ($ogImage | absURL) -}}
+    {{- end -}}
+
+    {{- $ogLocale := "" -}}
+    {{- if eq .Language.Lang "ru" -}}
+        {{- $ogLocale = "ru_RU" -}}
+    {{- else if eq .Language.Lang "en" -}}
+        {{- $ogLocale = "en_US" -}}
+    {{- else -}}
+        {{- $ogLocale = .Language.Lang -}}
+    {{- end -}}
+
     <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
     <meta property="og:title" content="{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}">
     <meta property="og:description" content="{{ $desc | plainify | truncate 160 }}">
     <meta property="og:url" content="{{ .Permalink }}">
+    <meta property="og:site_name" content="{{ .Site.Title }}">
+    {{- if $ogLocale -}}
+    <meta property="og:locale" content="{{ $ogLocale }}">
+    {{- end -}}
+    {{- range .AllTranslations -}}
+        {{- if ne .Language.Lang $.Language.Lang -}}
+    <meta property="og:locale:alternate" content="{{ if eq .Language.Lang "ru" }}ru_RU{{ else if eq .Language.Lang "en" }}en_US{{ else }}{{ .Language.Lang }}{{ end }}">
+        {{- end -}}
+    {{- end -}}
+    {{- if $ogImageAbs -}}
+    <meta property="og:image" content="{{ $ogImageAbs }}">
+    {{- end -}}
+
+    <meta name="twitter:card" content="{{ if $ogImageAbs }}summary_large_image{{ else }}summary{{ end }}">
+    <meta name="twitter:title" content="{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}">
+    <meta name="twitter:description" content="{{ $desc | plainify | truncate 200 }}">
+    {{- if $ogImageAbs -}}
+    <meta name="twitter:image" content="{{ $ogImageAbs }}">
+    {{- end -}}
 
     {{ block "head" . }}{{ end }}
 </head>
@@ -92,12 +130,16 @@
                     <span class="theme-icon">☀</span>
                 </button>
                 <div class="lang-switcher">
+                    {{- $langLinks := newScratch -}}
+                    {{- range $.AllTranslations -}}
+                        {{- $langLinks.Set .Language.Lang .RelPermalink -}}
+                    {{- end -}}
                     {{- range .Sites -}}
                         {{- $lang := .Language.Lang -}}
                         {{- $isActive := eq $lang $.Site.Language.Lang -}}
-                        {{- $url := "/" -}}
-                        {{- if eq $lang "en" -}}
-                            {{- $url = "/en/" -}}
+                        {{- $url := $langLinks.Get $lang -}}
+                        {{- if not $url -}}
+                            {{- $url = .Home.RelPermalink -}}
                         {{- end -}}
                         <a class="lang-btn{{ if $isActive }} active{{ end }}"
                            href="{{ $url }}"
@@ -116,16 +158,90 @@
 
     {{ partial "nav-drawer.html" . }}
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Book",
-      "name": "{{ .Site.Title }}",
-      "description": "{{ $desc | plainify | truncate 300 }}",
-      "url": "{{ .Site.BaseURL }}",
-      "inLanguage": "{{ .Language.Lang }}"
-    }
-    </script>
+    {{- $authorName := .Site.Params.author_name | default (.Site.Params.headerTitle | default "Кирилл Шваков") -}}
+    {{- $authorUrl := .Site.Params.author_url | default "https://kshvakov.github.io/" -}}
+    {{- $siteUrl := .Site.Home.Permalink -}}
+    {{- $websiteId := printf "%s#website" $siteUrl -}}
+    {{- $bookId := printf "%s#book" $siteUrl -}}
+    {{- $personId := printf "%s#person" $authorUrl -}}
+
+    {{- $person := dict
+        "@type" "Person"
+        "@id" $personId
+        "name" $authorName
+        "url" $authorUrl
+    -}}
+
+    {{- $website := dict
+        "@type" "WebSite"
+        "@id" $websiteId
+        "url" $siteUrl
+        "name" .Site.Title
+        "inLanguage" .Language.Lang
+    -}}
+
+    {{- $book := dict
+        "@type" "Book"
+        "@id" $bookId
+        "name" .Site.Title
+        "description" ($desc | plainify | truncate 300)
+        "url" $siteUrl
+        "inLanguage" .Language.Lang
+        "author" $person
+    -}}
+    {{- if $ogImageAbs -}}
+        {{- $book = merge $book (dict "image" $ogImageAbs) -}}
+    {{- end -}}
+
+    {{- $graph := slice $website $person $book -}}
+    {{- if not .IsHome -}}
+        {{- $crumbPages := slice -}}
+        {{- range .Ancestors.Reverse -}}
+            {{- $crumbPages = $crumbPages | append . -}}
+        {{- end -}}
+        {{- $crumbPages = $crumbPages | append . -}}
+
+        {{- $crumbItems := slice -}}
+        {{- range $i, $p := $crumbPages -}}
+            {{- $name := $p.Title -}}
+            {{- if $p.IsHome -}}
+                {{- $name = (cond (eq $.Language.Lang "ru") "Главная" "Home") -}}
+            {{- end -}}
+            {{- $crumbItems = $crumbItems | append (dict
+                "@type" "ListItem"
+                "position" (add $i 1)
+                "name" $name
+                "item" $p.Permalink
+            ) -}}
+        {{- end -}}
+
+        {{- $breadcrumbs := dict
+            "@type" "BreadcrumbList"
+            "itemListElement" $crumbItems
+        -}}
+        {{- $graph = $graph | append $breadcrumbs -}}
+    {{- end -}}
+    {{- if .IsPage -}}
+        {{- $article := dict
+            "@type" "Article"
+            "headline" (.Title | default .Site.Title)
+            "description" ($desc | plainify | truncate 300)
+            "url" .Permalink
+            "inLanguage" .Language.Lang
+            "author" $person
+            "isPartOf" (dict "@id" $bookId)
+            "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
+        -}}
+        {{- with .Date -}}
+            {{- $article = merge $article (dict "datePublished" (.Format "2006-01-02T15:04:05Z07:00")) -}}
+        {{- end -}}
+        {{- with .Lastmod -}}
+            {{- $article = merge $article (dict "dateModified" (.Format "2006-01-02T15:04:05Z07:00")) -}}
+        {{- end -}}
+        {{- $graph = $graph | append $article -}}
+    {{- end -}}
+
+    <script type="application/ld+json">{{ dict "@context" "https://schema.org" "@graph" $graph | jsonify }}</script>
 
     <script src="{{ "assets/site.js" | relURL }}"></script>
     {{ if .Site.Params.metrika_id }}
