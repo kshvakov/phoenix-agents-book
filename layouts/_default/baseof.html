@@ -34,7 +34,7 @@
       gtag('config', '{{ $gaID }}');
     </script>
 
-    <title>{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}</title>
+    <title>{{ if and .Title (not .IsHome) }}{{ .Title }} — {{ end }}{{ .Site.Title }}. {{ .Site.Params.headerTitle | default "Кирилл Шваков" }}</title>
 
     <link rel="icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
     <link rel="stylesheet" href="{{ "assets/site.css" | relURL }}">
