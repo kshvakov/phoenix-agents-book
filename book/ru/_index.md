@@ -50,12 +50,3 @@ description: "Книга о трансформации инженерной пр
 - [Глава 9: Команды агентов и управление практикой]({{< relref "chapters/09-agent-team-governance.md" >}})
 - [Глава 10: Capstone]({{< relref "chapters/10-capstone-full-cycle.md" >}})
 
----
-
-## Приложения
-
-- [Приложение A: Бизнес‑кейс]({{< relref "appendix/A-business-case.md" >}})
-- [Приложение B: Организационная трансформация]({{< relref "appendix/B-organizational-transformation.md" >}})
-- [Приложение C: Процесс и артефакты]({{< relref "appendix/C-process-and-artifacts.md" >}})
-- [Глоссарий]({{< relref "appendix/glossary.md" >}})
-
