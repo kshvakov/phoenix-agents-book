@@ -259,16 +259,16 @@ Bishop: "ADR-1 объясняет: модульный монолит для v1 (
 
 ```mermaid
 graph TB
-    Web[Web Frontend]
-    API[API Gateway]
-    Catalog[Catalog]
-    Cart[Cart]
-    Checkout[Checkout]
-    Orders[Orders]
-    Payments[Payments (граница PCI)]
-    Inventory[Inventory/ERP Integration]
-    Store[Data Store (PostgreSQL)]
-    Audit[Audit Logger]
+    Web["Web Frontend"]
+    API["API Gateway"]
+    Catalog["Catalog"]
+    Cart["Cart"]
+    Checkout["Checkout"]
+    Orders["Orders"]
+    Payments["Payments (граница PCI)"]
+    Inventory["Inventory/ERP Integration"]
+    Store["Data Store (PostgreSQL)"]
+    Audit["Audit Logger"]
 
     Web --> API
     API --> Catalog
