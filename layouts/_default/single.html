@@ -1,9 +1,5 @@
 {{ define "main" }}
 <article class="post">
-    <header class="post-header">
-        <h1 class="post-title">{{ .Title }}</h1>
-    </header>
-
     <div class="post-content">
         {{ if and .IsPage (gt (len .TableOfContents) 0) }}
         <details class="raw-transcript-details" style="margin-bottom: 1.5rem;">
