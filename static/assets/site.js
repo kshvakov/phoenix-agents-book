@@ -1,6 +1,89 @@
 (function() {
     'use strict';
 
+    // Book navigation drawer
+    const bookNavToggle = document.getElementById('book-nav-toggle');
+    const bookNavDrawer = document.getElementById('book-nav-drawer');
+    const bookNavOverlay = document.getElementById('book-nav-overlay');
+    const bookNavClose = document.getElementById('book-nav-close');
+
+    if (bookNavToggle && bookNavDrawer && bookNavOverlay && bookNavClose) {
+        let lastActiveElement = null;
+        let prevBodyOverflow = '';
+
+        function openBookNav() {
+            lastActiveElement = document.activeElement;
+            prevBodyOverflow = document.body.style.overflow;
+
+            bookNavOverlay.hidden = false;
+            bookNavDrawer.hidden = false;
+            bookNavDrawer.classList.add('is-open');
+            bookNavDrawer.setAttribute('aria-hidden', 'false');
+            bookNavToggle.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+
+            // focus close button for keyboard users
+            bookNavClose.focus();
+        }
+
+        function closeBookNav() {
+            bookNavDrawer.classList.remove('is-open');
+            bookNavDrawer.setAttribute('aria-hidden', 'true');
+            bookNavToggle.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = prevBodyOverflow;
+
+            // Hide after transition ends (or immediately if transitions disabled)
+            const hadTransition = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches === false;
+            if (hadTransition) {
+                window.setTimeout(function() {
+                    bookNavDrawer.hidden = true;
+                    bookNavOverlay.hidden = true;
+                }, 220);
+            } else {
+                bookNavDrawer.hidden = true;
+                bookNavOverlay.hidden = true;
+            }
+
+            if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+                lastActiveElement.focus();
+            } else {
+                bookNavToggle.focus();
+            }
+        }
+
+        function isOpen() {
+            return bookNavToggle.getAttribute('aria-expanded') === 'true';
+        }
+
+        bookNavToggle.addEventListener('click', function() {
+            if (isOpen()) closeBookNav();
+            else openBookNav();
+        });
+
+        bookNavClose.addEventListener('click', function() {
+            closeBookNav();
+        });
+
+        bookNavOverlay.addEventListener('click', function() {
+            closeBookNav();
+        });
+
+        // Close on Esc
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isOpen()) {
+                closeBookNav();
+            }
+        });
+
+        // Close after clicking a link inside
+        bookNavDrawer.addEventListener('click', function(e) {
+            const target = e.target;
+            if (target && target.tagName === 'A') {
+                closeBookNav();
+            }
+        });
+    }
+
     // Theme switching
     const THEME_STORAGE_KEY = 'preferred-theme';
     const themeToggle = document.getElementById('theme-toggle');

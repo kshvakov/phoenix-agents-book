@@ -1,0 +1,70 @@
+{{- $current := . -}}
+{{- $section := $current.Section -}}
+{{- $show := or (eq $section "chapters") (eq $section "appendix") -}}
+{{- if $show -}}
+  {{- $chapters := sort (where .Site.RegularPages "Section" "chapters") "Params.weight" "asc" -}}
+  {{- $appendix := sort (where .Site.RegularPages "Section" "appendix") "Params.weight" "asc" -}}
+
+  <div id="book-nav-overlay" class="book-nav-overlay" hidden></div>
+  <aside
+    id="book-nav-drawer"
+    class="book-nav-drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="book-nav-title"
+    hidden
+  >
+    <div class="book-nav-drawer__header">
+      <div id="book-nav-title" class="book-nav-drawer__title">
+        {{ if eq .Language.Lang "ru" }}Оглавление{{ else }}Contents{{ end }}
+      </div>
+      <button
+        type="button"
+        class="book-nav-drawer__close"
+        id="book-nav-close"
+        aria-label="{{ if eq .Language.Lang "ru" }}Закрыть{{ else }}Close{{ end }}"
+      >
+        ×
+      </button>
+    </div>
+
+    <nav class="book-nav-drawer__body" aria-label="{{ if eq .Language.Lang "ru" }}Навигация по книге{{ else }}Book navigation{{ end }}">
+      {{- if gt (len $chapters) 0 -}}
+      <div class="book-nav-drawer__section">
+        <div class="book-nav-drawer__section-title">{{ if eq .Language.Lang "ru" }}Главы{{ else }}Chapters{{ end }}</div>
+        <ul class="book-nav-drawer__list">
+          {{- range $chapters -}}
+            {{- $isActive := eq .RelPermalink $current.RelPermalink -}}
+            <li class="book-nav-drawer__item">
+              <a
+                class="book-nav-drawer__link{{ if $isActive }} is-active{{ end }}"
+                href="{{ .RelPermalink }}"
+                {{ if $isActive }}aria-current="page"{{ end }}
+              >{{ .Title }}</a>
+            </li>
+          {{- end -}}
+        </ul>
+      </div>
+      {{- end -}}
+
+      {{- if gt (len $appendix) 0 -}}
+      <div class="book-nav-drawer__section">
+        <div class="book-nav-drawer__section-title">{{ if eq .Language.Lang "ru" }}Приложения{{ else }}Appendix{{ end }}</div>
+        <ul class="book-nav-drawer__list">
+          {{- range $appendix -}}
+            {{- $isActive := eq .RelPermalink $current.RelPermalink -}}
+            <li class="book-nav-drawer__item">
+              <a
+                class="book-nav-drawer__link{{ if $isActive }} is-active{{ end }}"
+                href="{{ .RelPermalink }}"
+                {{ if $isActive }}aria-current="page"{{ end }}
+              >{{ .Title }}</a>
+            </li>
+          {{- end -}}
+        </ul>
+      </div>
+      {{- end -}}
+    </nav>
+  </aside>
+{{- end -}}
