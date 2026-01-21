@@ -763,7 +763,7 @@ def route_incident(incident):
 
 ```text
 [ROUTER]: selected skills = book (base=book, checkers=none)
-[TRACE] read: rules=[]; skills=[.cursor/skills/book/SKILL.md]; refs=[book/ru/chapters/02-system-prompt-guardrails.md, book/ru/chapters/03-spec-and-plan.md, book/ru/chapters/05-sop-design-to-pr.md, book/ru/chapters/07-security-infrastructure.md, book/ru/chapters/08-eval-golden-tests.md, book/ru/chapters/09-agent-team-governance.md, book/ru/chapters/10-capstone-full-cycle.md, book/ru/appendix/glossary.md, book/ru/appendix/C-process-and-artifacts.md]
+[TRACE] read: rules=[]; skills=[.cursor/skills/book/SKILL.md]; refs=[book/ru/chapters/02-system-prompt-guardrails.md, book/ru/chapters/03-spec-and-plan.md, book/ru/chapters/05-sop-design-to-pr.md, ... +6 more]
 --- [SWITCHING TO РЕДАКТОР] ---
 [РЕДАКТОР]: вычитка именно наших правок в book/ru/* — органичность, стиль, терминология, непротиворечивость.
 ```
@@ -877,7 +877,9 @@ QualityBar: <how to evaluate the output>
 
 Это ровно то, что превращает “несколько агентов” в **систему**, а не в “несколько чатов”.
 
-Типовой “скелет” оркестрации для сложных задач (не только инцидентов): **планировщик → исполнитель → верификатор** (Planner → Implementer → Verifier). Первый формирует план и критерии проверки, второй делает изменение, третий независимо подтверждает, что критерии выполнены и всё действительно работает.\n+\n+Важно: это **паттерн передачи контекста**, а не “ещё одна обязательная команда”. В инцидентах он накладывается на вашу схему ролей: планирование/сбор фактов (Orchestrator + Analyst), исполнение диагностики и исправлений (SRE), независимая проверка риска/корректности (Reviewer).
+Типовой “скелет” оркестрации для сложных задач (не только инцидентов): **планировщик → исполнитель → верификатор** (Planner → Implementer → Verifier). Первый формирует план и критерии проверки, второй делает изменение, третий независимо подтверждает, что критерии выполнены и всё действительно работает.
+
+Важно: это **паттерн передачи контекста**, а не “ещё одна обязательная команда”. В инцидентах он накладывается на вашу схему ролей: планирование/сбор фактов (Orchestrator + Analyst), исполнение диагностики и исправлений (SRE), независимая проверка риска/корректности (Reviewer).
 
 **2) Синхронно vs асинхронно (foreground/background)**  
 У вас всегда есть два класса подзадач:
