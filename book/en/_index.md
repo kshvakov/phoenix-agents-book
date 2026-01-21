@@ -1,6 +1,7 @@
 ---
 title: "Autonomous Agents: transforming engineering and business"
 description: "A book on transforming engineering work with autonomous AI agents: from prompts and SOPs to quality, security, and organizational change."
+lastmod: 2026-01-21
 ---
 
 # Autonomous Agents: transforming engineering and business

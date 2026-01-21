@@ -1,5 +1,6 @@
 ---
 title: "README (не публиковать)"
+lastmod: 2026-01-21
 sitemap:
   disable: true
 build:

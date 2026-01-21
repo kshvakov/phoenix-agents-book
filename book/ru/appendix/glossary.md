@@ -1,6 +1,7 @@
 ---
 title: "Глоссарий"
 description: "Термины, сокращения и артефакты, используемые по всей книге: SLO/SLI, SOP, guardrails, eval‑наборы и другие."
+lastmod: 2026-01-21
 weight: 99
 ---
 
