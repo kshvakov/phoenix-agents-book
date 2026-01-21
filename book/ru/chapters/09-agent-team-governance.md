@@ -472,6 +472,20 @@ versioning:
 3. Протестировать на eval-наборе
 4. Деплой, если контрольные точки качества пройдены
 
+#### Каталог навыков: как сделать специализацию переносимой
+
+Шаблоны помогают быстро создавать агентов, но для масштабирования важна ещё одна форма упаковки знания: **навык (skill)** как переносимый пакет “как делать работу”.
+
+Минимальная модель навыка:
+
+- **Короткое описание “когда использовать”** (ключевые слова/триггеры) — это сигнал для автоматической маршрутизации.
+- **Инструкция “как выполнять”** (пошагово, с DoD и STOP‑условиями).
+- **Ресурсы по требованию**: шаблоны, справки, а иногда — безопасные скрипты для повторяемых проверок.
+
+Практический принцип governance: навыки должны быть **версионируемыми**, **ревьюируемыми** и **аудируемыми** так же, как код. Иначе “знание” снова окажется в головах людей или в чате без истории.
+
+> **Пример открытого стандарта** такого пакета знаний: “Agent Skills” (`SKILL.md` + `references/` + `assets/` + `scripts/`, с подгрузкой по требованию). [Agent Skills Specification](https://agentskills.io/specification)
+
 ---
 
 ### 2. Security Baseline (baseline безопасности)
@@ -728,6 +742,64 @@ def route_incident(incident):
 - Escalation: человек должен определить подходящую команду
 
 В 2014 Bill вручную определял, кого звать — на ходу. В 2026 таблица маршрутизации автоматизирует решение.
+
+#### Skill Router: базовая роль + роли‑проверяющие + TRACE
+
+Маршрутизация отвечает на вопрос “какую команду запускать”. Но остаётся второй, практический вопрос: “как обеспечить качество результата *по умолчанию*, а не по удаче?”.
+
+Один из простых и сильных паттернов — **Skill Router (роутер навыков/ролей)**:
+
+- **Base role (базовая роль)**: ровно один “исполнитель”, который делает основную работу.
+- **Checker roles (роли‑проверяющие)**: 0..N проверяющих по risk/touchpoints (безопасность, БД, архитектурный риск, инциденты).
+- **TRACE**: явный список того, какие инструкции/шаблоны/артефакты были реально использованы (а не “могли бы быть”).
+
+Это дисциплина, которая снижает типовые ошибки агентных систем: “сказал, что готово”, “не учёл риск данных”, “забыл прогнать проверки”, “не понял контекст”. В вашем governance‑контуре это можно формализовать как обязательный формат выхода: роутинг → работа → проверка → фиксация TRACE в артефактах.
+
+##### Рабочий пример: “Skill Router” как обязательный пролог ответа
+
+Ниже — пример “боевого” правила, которое заставляет агента **сначала** выбрать базовую роль и роли‑проверяющие, затем показать **TRACE** (что реально было прочитано), и только после этого выполнять задачу. Такой формат полезен, когда вы хотите повысить воспроизводимость и снизить риск “скрытых допущений”.
+
+```text
+ROLE ROUTING (MANDATORY)
+
+Before ANY answer you MUST:
+1) Run Skill Router and select roles:
+   - base role: exactly 1 main role
+   - checker roles: 0..N validating roles (based on risks/touchpoints)
+2) Immediately print markers (Markdown):
+   - **[ROUTER]:** selected skills = <list> (base=<base>, checkers=<list|none>)
+   - **[TRACE]** read: rules=[...]; skills=[...]; refs=[...]
+     TRACE rules:
+     - list only actually read files (rules/skills/references)
+     - use workspace-relative paths for readability
+     - if there are many files: first N + “+X more”
+3) Then write the answer using role markers only:
+   - **[<ROLE>]:** ...
+   - **--- [SWITCHING TO <ROLE>] ---**
+   - **--- [RETURNING TO <ROLE>] ---**
+
+IF THE ROLE IS NOT DEFINED
+A role is “not defined” when:
+- no skill from the catalog matches the task/expected behavior
+- or the user explicitly requests behavior/style not covered by available skills/project roles
+
+Then you MUST:
+- NOT perform the task
+- ask the user to provide a Role Spec (template below)
+- after receiving Role Spec, treat it as a “project role” and route to it alongside skills
+
+PROJECT ROLES (sticky, per-project)
+If this system prompt (or the conversation) contains Role Specs, treat them as available project roles and use them for routing.
+
+ROLE SPEC TEMPLATE (user must provide)
+ROLE: <RoleName>
+WhoIAm: <1-2 lines>
+Goal: <what outcome I’m optimizing for>
+Tone: <how I should sound>
+Format: <structure / artifacts>
+Constraints: <taboos / what not to do>
+QualityBar: <how to evaluate the output>
+```
 
 ---
 
