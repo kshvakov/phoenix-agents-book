@@ -759,6 +759,15 @@ def route_incident(incident):
 
 Ниже — пример “боевого” правила, которое заставляет агента **сначала** выбрать базовую роль и роли‑проверяющие, затем показать **TRACE** (что реально было прочитано), и только после этого выполнять задачу. Такой формат полезен, когда вы хотите повысить воспроизводимость и снизить риск “скрытых допущений”.
 
+Короткий пример из этого чата (как выглядит “сигнатура” ответа):
+
+```text
+[ROUTER]: selected skills = book (base=book, checkers=none)
+[TRACE] read: rules=[]; skills=[.cursor/skills/book/SKILL.md]; refs=[book/ru/chapters/02-system-prompt-guardrails.md, book/ru/chapters/03-spec-and-plan.md, book/ru/chapters/05-sop-design-to-pr.md, book/ru/chapters/07-security-infrastructure.md, book/ru/chapters/08-eval-golden-tests.md, book/ru/chapters/09-agent-team-governance.md, book/ru/chapters/10-capstone-full-cycle.md, book/ru/appendix/glossary.md, book/ru/appendix/C-process-and-artifacts.md]
+--- [SWITCHING TO РЕДАКТОР] ---
+[РЕДАКТОР]: вычитка именно наших правок в book/ru/* — органичность, стиль, терминология, непротиворечивость.
+```
+
 ```text
 ROLE ROUTING (MANDATORY)
 
