@@ -21,6 +21,8 @@ timeout: <NEW_TIMEOUT>  # было <OLD_TIMEOUT>
 $ ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags deploy
 ```
 
+**Важно:** для Ansible deploy/scale/изменений обязателен dry-run `--check --diff` до apply, и перед apply — approval gate (decision packet → approval → apply → verification).
+
 Wes уехал домой.
 
 Вскоре после этого случилась авария в продакшене. API gateway упал. Все сервисы затронуты.
@@ -207,7 +209,7 @@ while True:
 +Guardrails: (removed)
 ```
 
-Деплой агента → агент теперь выполняет `delete` без guardrails.
+Деплой сервиса → сервис теперь выполняет `delete` без guardrails.
 
 **Влияние:** КРИТИЧЕСКОЕ (агент может удалять сервисы в продакшене)
 
@@ -416,13 +418,13 @@ Wes Davis план развёртывания: “быстро залить ко
 
 **Решение в 2026: план изменений с контрольная точка**
 
-## План изменений: развёртывание агента в продакшен
+## План изменений: развёртывание сервиса в продакшен
 
 ### Перед развёртыванием (контрольная точка 0)
 
 **Предусловия:**
 - Модель угроз проверена + митигации P0 реализованы
-- Агент протестирован на стейджинге (> <WINDOW>, без проблем)
+- Сервис протестирован на стейджинге (> <WINDOW>, без проблем)
 - План отката задокументирован и протестирован
 - Дашборды мониторинга настроены
 - Дежурная команда уведомлена
@@ -437,18 +439,25 @@ Wes Davis план развёртывания: “быстро залить ко
 **Развёртывание (пример):**
 
 ```bash
-# 1) Задеплоить v2 на green-хосты (deb + systemd через Ansible)
-ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_green --tags deploy --extra-vars "agent_version=v2"
+# 1) Dry-run (обязателен): увидеть, что именно поменяется
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --check --diff --tags deploy --extra-vars "service_version=v2"
 
-# 2) Проверить, что сервис на green поднялся
-ansible -i inventories/production agent_green -b -m shell -a "systemctl is-active --quiet agent"
+# Decision packet + approval gate:
+# - dry-run показал ожидаемые изменения
+# - запроси approval и STOP без него
+#
+# 2) Apply (только после approval)
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --diff --tags deploy --extra-vars "service_version=v2"
 
-# 3) Прогнать smoke-тесты против green напрямую (не через VIP)
-./scripts/agent-smoke.sh --target=green
+# 3) Проверить, что сервис на green поднялся
+ansible -i inventories/production service_green -b -m shell -a "systemctl is-active --quiet service"
+
+# 4) Прогнать smoke-тесты против green напрямую (не через VIP)
+./scripts/service-smoke.sh --target=green
 ```
 
 **Мониторинг (<WINDOW>):**
-- Ошибки в логах `agent` на green = 0 (или в рамках baseline)
+- Ошибки в логах `service` на green = 0 (или в рамках baseline)
 - Метрики агента в норме (latency, error rate, escalation rate)
 - Угрозы P0 не обнаружены (журнал аудита чистый)
 
@@ -460,7 +469,7 @@ Dry-run (`--check`) — это не canary. Это проверка того, ч
 
 ```bash
 # Dry-run на green (проверяем, что плейбук “чистый”)
-ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_green --check --diff --tags deploy --extra-vars "agent_version=v2"
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --check --diff --tags deploy --extra-vars "service_version=v2"
 ```
 
 **контрольная точка 2:** dry-run прошёл без сюрпризов? [yes/no]
@@ -472,11 +481,11 @@ Canary в Ansible — это **первый небольшой батч хост
 Пример структуры:
 
 ```yaml
-# playbooks/agent.yml (фрагмент)
-- hosts: agent_green
+# playbooks/service.yml (фрагмент)
+- hosts: service_green
   serial: 1   # canary: по одному хосту
   roles:
-    - agent
+    - service
 ```
 
 **контрольная точка 3:** canary‑хост(ы) на green работают стабильно (health/smoke/метрики)? [yes/no]
@@ -486,11 +495,11 @@ Canary в Ansible — это **первый небольшой батч хост
 После canary увеличиваем batch size (например, `serial: 3` или `serial: 5`) и доезжаем до полного green.
 
 ```yaml
-# playbooks/agent.yml (фрагмент)
-- hosts: agent_green
+# playbooks/service.yml (фрагмент)
+- hosts: service_green
   serial: 5   # gradual rollout: пакетами по 5 хостов
   roles:
-    - agent
+    - service
 ```
 
 **контрольная точка 4:** green полностью обновлён и стабилен? [yes/no]
@@ -507,13 +516,13 @@ Shadow — это canary “по поведению”: v2 получает ко
 
 ```bash
 # Отключить анонс VIP на blue
-ansible -i inventories/production agent_blue -b -m systemd -a "name=vip-announcer state=stopped"
+ansible -i inventories/production service_blue -b -m systemd -a "name=vip-announcer state=stopped"
 
 # Включить анонс VIP на green
-ansible -i inventories/production agent_green -b -m systemd -a "name=vip-announcer state=started"
+ansible -i inventories/production service_green -b -m systemd -a "name=vip-announcer state=started"
 
 # Проверить, что VIP обслуживается green
-curl -sf http://<AGENT_VIP>/health | jq '.version'
+curl -sf http://<SERVICE_VIP>/health | jq '.version'
 ```
 
 **Мониторинг (<WINDOW>):**
@@ -526,9 +535,9 @@ curl -sf http://<AGENT_VIP>/health | jq '.version'
 ### После развёртывания (контрольная точка 4)
 
 **Документация:**
-- Обновить ранбук: «Agent v2 deployed on YYYY-MM-DD»
-- Обновить сценарий реагирования на инциденты: «Agent v2 commands»
-- Отправить уведомление: «Agent v2 deployed successfully»
+- Обновить ранбук: «Service v2 deployed on YYYY-MM-DD»
+- Обновить сценарий реагирования на инциденты: «Service v2 commands»
+- Отправить уведомление: «Service v2 deployed successfully»
 
 **Мониторинг (1 неделя):**
 - Ежедневный обзор метрик агента
@@ -563,15 +572,15 @@ Wes Davis: деплой упал → авария в продакшене → Br
 
 **Решение в 2026: план отката до деплоя**
 
-## План отката: Agent v2 → Agent v1
+## План отката: сервис v2 → сервис v1
 
 ### Подготовка перед деплоем
 
 **Задокументируй перед деплоем:**
-- Текущая версия: agent v1 (commit SHA: abc123)
-- Текущая конфигурация: сохранена в `config/agent-v1.yml`
+- Текущая версия: service v1 (commit SHA: abc123)
+- Текущая конфигурация: сохранена в `config/service-v1.yml`
 - Текущее число реплик: 3
-- Текущий service: agent.production.svc.cluster.local
+- Текущий service: service.production.svc.cluster.local
 
 **Протестируй откат на стейджинге:**
 - Deploy v2 → rollback to v1 → verify works
@@ -593,18 +602,22 @@ Wes Davis: деплой упал → авария в продакшене → Br
 **Команды (предварительно протестированы):**
 ```bash
 # Шаг 1: вернуть VIP на blue (самый быстрый “сетевой” откат)
-ansible -i inventories/production agent_green -b -m systemd -a "name=vip-announcer state=stopped"
-ansible -i inventories/production agent_blue  -b -m systemd -a "name=vip-announcer state=started"
+ansible -i inventories/production service_green -b -m systemd -a "name=vip-announcer state=stopped"
+ansible -i inventories/production service_blue  -b -m systemd -a "name=vip-announcer state=started"
 
 # Шаг 2: (опционально) откатить версию агента на green, чтобы подготовиться к следующей попытке
-ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_green --tags rollback --extra-vars "agent_version=v1"
+# Dry-run (обязателен) → decision packet + approval → apply:
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --tags rollback --check --diff --extra-vars "service_version=v1"
+
+# Approval gate: запроси approval и STOP без него.
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --tags rollback --diff --extra-vars "service_version=v1"
 
 # Шаг 3: проверить health и версию через VIP
-curl -s http://<AGENT_VIP>/health | jq '.version'
+curl -s http://<SERVICE_VIP>/health | jq '.version'
 # Ожидается: "v1"
 
 # Шаг 4: проверить health
-curl -s http://agent.production.svc/health | jq '.version'
+curl -s http://service.production.svc/health | jq '.version'
 # Ожидается: "v1"
 
 # Шаг 5: мониторинг метрик (<WINDOW>)
@@ -627,7 +640,7 @@ curl -s http://agent.production.svc/health | jq '.version'
 - План исправления: как предотвратить это в следующем деплое?
 
 **Уведомления:**
-- Slack: "Agent v2 откатан на v1. Причина: {{reason}}. Инцидент: {{incident_id}}"
+- Slack: "Сервис v2 откатан на v1. Причина: {{reason}}. Инцидент: {{incident_id}}"
 - Дежурному: разберись с первопричиной
 
 ### Тестирование отката (перед продакшеном)
@@ -664,7 +677,7 @@ Canary (частичное включение/маршрутизация) тре
 
 ### Текущее состояние (Blue)
 
-- **Blue environment:** agent v1 запущен
+- **Blue environment:** service v1 запущен
 - **Traffic:** 100% клиентов → Blue
 - **Status:** стабильно, продакшен
 
@@ -672,7 +685,15 @@ Canary (частичное включение/маршрутизация) тре
 
 **Шаг 1:** развернуть v2 в отдельном окружении (Green)
 ```bash
-ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_green --tags deploy --extra-vars "agent_version=v2"
+# Dry-run (обязателен): увидеть, что именно поменяется
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --check --diff --tags deploy --extra-vars "service_version=v2"
+
+# Decision packet + approval gate:
+# - dry-run показал ожидаемые изменения
+# - запроси approval и STOP без него
+#
+# Apply (только после approval)
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --diff --tags deploy --extra-vars "service_version=v2"
 ```
 
 **Шаг 2:** проверить, что Green (v2) работает
@@ -690,8 +711,8 @@ ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_gre
 **Шаг 3:** направить 100% трафика на Green
 ```bash
 # Blue → Green: отключить анонс VIP на blue и включить на green
-ansible -i inventories/production agent_blue  -b -m systemd -a "name=vip-announcer state=stopped"
-ansible -i inventories/production agent_green -b -m systemd -a "name=vip-announcer state=started"
+ansible -i inventories/production service_blue  -b -m systemd -a "name=vip-announcer state=stopped"
+ansible -i inventories/production service_green -b -m systemd -a "name=vip-announcer state=started"
 ```
 
 **Результат:** 100% клиентов → Green (v2)
@@ -713,8 +734,8 @@ ansible -i inventories/production agent_green -b -m systemd -a "name=vip-announc
 **Если что-то пошло не так:**
 ```bash
 # Мгновенный откат: переключить VIP обратно на Blue
-ansible -i inventories/production agent_green -b -m systemd -a "name=vip-announcer state=stopped"
-ansible -i inventories/production agent_blue  -b -m systemd -a "name=vip-announcer state=started"
+ansible -i inventories/production service_green -b -m systemd -a "name=vip-announcer state=stopped"
+ansible -i inventories/production service_blue  -b -m systemd -a "name=vip-announcer state=started"
 ```
 
 **Время:** быстро
@@ -862,11 +883,11 @@ Wes Davis: деплой → простой → **клиенты заметили
 
 ---
 
-## Практика: полный план изменений для деплоя агента
+## Практика: полный план изменений для деплоя сервиса
 
 ### Задача
 
-Деплоим agent v2 (новый ранбук + улучшения триажа) в продакшен.
+Деплоим сервис v2 (новый ранбук + улучшения триажа) в продакшен.
 
 ### Модель угроз (выполнено в quick-start)
 
@@ -875,7 +896,7 @@ Wes Davis: деплой → простой → **клиенты заметили
 ### План изменений
 
 ````markdown
-## План изменений: деплой Agent v2 (blue/green + BGP VIP)
+## План изменений: деплой сервиса v2 (blue/green + BGP VIP)
 
 ### Таймлайн
 
@@ -883,7 +904,7 @@ Wes Davis: деплой → простой → **клиенты заметили
 
 **Friday:**
 - <TIME>: проверки перед деплоем (контрольная точка 0)
-- <TIME>: deploy v2 на `agent_green` (без VIP)
+- <TIME>: deploy v2 на `service_green` (без VIP)
 - <TIME_RANGE>: smoke + shadow/dry-run (контрольная точка 1–2)
 
 **Saturday:**
@@ -893,13 +914,13 @@ Wes Davis: деплой → простой → **клиенты заметили
 - <TIME_RANGE>: мониторинг с продакшен‑нагрузкой
 
 **Sunday:**
-- <TIME>: финализация (контрольная точка 4): документирование + оставить `agent_blue` как быстрый откат на <WINDOW>
+- <TIME>: финализация (контрольная точка 4): документирование + оставить `service_blue` как быстрый откат на <WINDOW>
 
 ### Проверки перед деплоем (контрольная точка 0)
 
 **Checklist:**
 - Модель угроз проверена (5 угроз, митигации P0 сделаны)
-- Агент протестирован на стейджинге (<WINDOW>, без проблем)
+- Сервис протестирован на стейджинге (<WINDOW>, без проблем)
 - План отката протестирован (переключение VIP + откат версии; время < <WINDOW>)
 - Дашборды мониторинга настроены (3 дашборда, 8 алертов)
 - Дежурная команда уведомлена (Alice, Bob on-call)
@@ -911,38 +932,45 @@ Wes Davis: деплой → простой → **клиенты заметили
 
 **Команды деплоя:**
 ```bash
-# <TIME>: задеплоить v2 на green
-ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_green --tags deploy --extra-vars "agent_version=v2"
+# <TIME>: dry-run (обязателен) — понять, что именно поменяется
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --check --diff --tags deploy --extra-vars "service_version=v2"
 
-# Проверить, что agent поднялся на green
-ansible -i inventories/production agent_green -b -m shell -a "systemctl is-active --quiet agent"
+# Decision packet + approval gate:
+# - dry-run показал ожидаемые изменения
+# - запроси approval и STOP без него
+#
+# <TIME>: apply (только после approval)
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --diff --tags deploy --extra-vars "service_version=v2"
+
+# Проверить, что service поднялся на green
+ansible -i inventories/production service_green -b -m shell -a "systemctl is-active --quiet service"
 ```
 
 **Мониторинг (<WINDOW>):**
-- Логи `agent` на green без ошибок
+- Логи `service` на green без ошибок
 - Метрики агента в baseline
 
 **контрольная точка 1:** green готов? **YES** → перейти к фазе 2
 
-### Фаза 2: dry-run плейбука (обязательная проверка)
+### Фаза 2: (опционально) повторный dry-run плейбука (идемпотентность/контроль)
 
 **Цель:** проверить playbook в режиме `--check` (идемпотентность и предсказуемость изменений).
 
 ```bash
-ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_green --check --diff --tags deploy --extra-vars "agent_version=v2"
+ansible-playbook -i inventories/production playbooks/service.yml --limit service_green --check --diff --tags deploy --extra-vars "service_version=v2"
 ```
 
 **контрольная точка 2:** dry-run прошёл без сюрпризов? **YES** → перейти к фазе 3
 
 ### Фаза 3: canary rollout через Ansible serial (первые хосты green)
 
-**Идея:** обновить небольшой батч хостов `agent_green` (например, `serial: 1`) и проверить health/smoke/метрики.
+**Идея:** обновить небольшой батч хостов `service_green` (например, `serial: 1`) и проверить health/smoke/метрики.
 
 **контрольная точка 3:** canary стабильна? **YES** → перейти к фазе 4
 
 ### Фаза 4: gradual rollout через Ansible serial (остальные хосты green)
 
-**Идея:** докатить v2 на весь `agent_green` пакетами (`serial: N`).
+**Идея:** докатить v2 на весь `service_green` пакетами (`serial: N`).
 
 **контрольная точка 4:** green полностью обновлён и стабилен? **YES** → перейти к фазе 5
 
@@ -957,11 +985,11 @@ ansible-playbook -i inventories/production playbooks/agent.yml --limit agent_gre
 **Команды переключения:**
 ```bash
 # <TIME>: переключить VIP
-ansible -i inventories/production agent_blue  -b -m systemd -a "name=vip-announcer state=stopped"
-ansible -i inventories/production agent_green -b -m systemd -a "name=vip-announcer state=started"
+ansible -i inventories/production service_blue  -b -m systemd -a "name=vip-announcer state=stopped"
+ansible -i inventories/production service_green -b -m systemd -a "name=vip-announcer state=started"
 
 # Проверить, что VIP обслуживается green
-curl -sf http://<AGENT_VIP>/health | jq '.version'
+curl -sf http://<SERVICE_VIP>/health | jq '.version'
 ```
 
 **Мониторинг (<WINDOW>):**
@@ -974,21 +1002,21 @@ curl -sf http://<AGENT_VIP>/health | jq '.version'
 ### Фаза 7: финализация
 
 **Действия:**
-- Оставить `agent_blue` как быстрый откат на период <WINDOW>
+- Оставить `service_blue` как быстрый откат на период <WINDOW>
 - Обновить документацию и ранбуки
-- Запланировать “схлопывание” окружений: обновить `agent_blue` до v2 и вернуть его роль как нового “blue”
+- Запланировать “схлопывание” окружений: обновить `service_blue` до v2 и вернуть его роль как нового “blue”
 
-**контрольная точка 7:** деплой финализирован. **Agent v2 теперь в продакшене.**
+**контрольная точка 7:** деплой финализирован. **Сервис v2 теперь в продакшене.**
 
 ### После деплоя
 
 **Документация:**
--  Отчёт: «Деплой Agent v2 (blue/green через VIP)»
--  Ранбук обновлён: "Agent v2 commands"
+-  Отчёт: «Деплой сервиса v2 (blue/green через VIP)»
+-  Ранбук обновлён: "Service v2 commands"
 -  Журнал изменений: «v2 улучшения: более быстрый первичный разбор, более логичная эскалация»
 
 **Уведомления:**
-- Slack: "Agent v2 успешно задеплоен. Без простоя. Есть быстрый откат через VIP."
+- Slack: "Сервис v2 успешно задеплоен. Без простоя. Есть быстрый откат через VIP."
 ````
 
 **Результат:**
@@ -1010,7 +1038,7 @@ curl -sf http://<AGENT_VIP>/health | jq '.version'
 
 **Сценарий:**
 
-Lance: «Agent работает локально, можно в продакшен?»
+Lance: «Сервис работает локально, можно в продакшен?»
 
 Деплой → авария в продакшене → оказалось, что окружение продакшена отличается (версия БД, правила egress/firewall, лимиты ресурсов).
 
@@ -1026,9 +1054,9 @@ Bill Palmer после пятого инцидента создал стейдж
 ## Контрольная точка 0 деплоя: проверка на стейджинге
 
 **Предусловия:**
-- Agent задеплоен на стейджинге
+- Сервис задеплоен на стейджинге
 - Стейджинг = копия продакшена (та же версия БД, те же правила egress/firewall, те же лимиты ресурсов)
-- Agent протестирован на стейджинге > <WINDOW>
+- Сервис протестирован на стейджинге > <WINDOW>
 - Смоук‑тесты пройдены (10 тестовых инцидентов решены успешно)
 
 **УСЛОВИЕ ОСТАНОВКИ (STOP):** если тест на стейджинге не прошёл → исправить на стейджинге и перетестировать. НЕ деплоить в продакшен, пока стейджинг не стабилен.
@@ -1038,7 +1066,7 @@ Bill Palmer после пятого инцидента создал стейдж
 
 Чеклист перед продакшеном:
 - Стейджинг существует и совпадает с продакшеном
-- Agent задеплоен на стейджинге > <WINDOW>
+- Сервис задеплоен на стейджинге > <WINDOW>
 - Смоук‑тесты пройдены (0 ошибок)
 - Performance‑тесты пройдены (MTTR < target)
 - Security‑тесты пройдены (проверены сценарии модели угроз)
@@ -1049,7 +1077,7 @@ Bill Palmer после пятого инцидента создал стейдж
 
 Деплой упал → дежурный: «Быстро откатывай!»
 
-Дежурный пытается: `systemctl rollback agent` → **command not found** (такой команды нет).
+Дежурный пытается: `systemctl rollback service` → **command not found** (такой команды нет).
 
 Пробует: переключить VIP обратно на blue по памяти → ошибается в порядке действий → теряет время.
 
@@ -1092,7 +1120,7 @@ Bill Palmer после пятого инцидента создал стейдж
 
 **Сценарий:**
 
-Деплой успешен (юнит `agent` active). Спустя время клиенты жалуются: «Agent не работает».
+Деплой успешен (юнит `service` active). Спустя время клиенты жалуются: «Сервис не работает».
 
 Дежурный смотрит: доля ошибок 50% (baseline 2%). **Не было алерта.**
 
@@ -1394,7 +1422,7 @@ Bus=1     Bus=1.5      Bus=5+        Bus=10+
 
 ### Что мы сделали
 
-Подготовили безопасный деплой агента в продакшен:
+Подготовили безопасный деплой сервиса в продакшен:
 
 1. **Модель угроз:** выявлено 5 угроз, митигации приоритизированы (P0/P1/P2)
 2. **План изменений:** green‑валидация + shadow/dry-run + переключение VIP с контрольная точка
@@ -1450,7 +1478,7 @@ Bus=1     Bus=1.5      Bus=5+        Bus=10+
 - Мониторинг настроен (дашборды + алерты)
 
 **Уровень 4: деплой в продакшен**
-- Агент задеплоен в продакшен по плану изменений
+- Сервис задеплоен в продакшен по плану изменений
 - 0 простоя (gradual rollout прошёл успешно)
 - План отката протестирован и готов (цель: < <WINDOW>)
 - Мониторинг показывает, что агент healthy (все метрики зелёные)
@@ -1459,7 +1487,7 @@ Bus=1     Bus=1.5      Bus=5+        Bus=10+
 
 **Глава 8:** Eval-набор + golden tests — как измерять качество агента (не "чувствуем", а "измеряем").
 
-**Связь с Главой 7:** агента безопасно задеплоили в продакшен. Но как **измерить**, что агент работает качественно? Глава 8 покажет eval-набор для системного измерения качества.
+**Связь с Главой 7:** сервис безопасно задеплоили в продакшен. Но как **измерить**, что агент работает качественно? Глава 8 покажет eval-набор для системного измерения качества.
 
 ---
 

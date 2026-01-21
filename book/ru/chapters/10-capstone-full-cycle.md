@@ -602,7 +602,9 @@ python eval_agent.py --full-dataset
 - Контрольная точка: все метрики зелёные
 
 ### План отката:
-- Command: `ansible-playbook -i inventories/production playbooks/agent-orchestrator.yml --tags rollback --extra-vars "agent_orchestrator_version=<PREV_VERSION>"`
+- Command (Ansible: dry-run обязателен) → approval → apply:
+  - `ansible-playbook -i inventories/production playbooks/agent-orchestrator.yml --tags rollback --check --diff --extra-vars "agent_orchestrator_version=<PREV_VERSION>"`
+  - `ansible-playbook -i inventories/production playbooks/agent-orchestrator.yml --tags rollback --diff --extra-vars "agent_orchestrator_version=<PREV_VERSION>"`
 - Оценка времени: < 3 минуты
 - Триггер: error rate > 10% или обнаружен false positive
 

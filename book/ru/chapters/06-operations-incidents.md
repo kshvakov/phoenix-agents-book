@@ -6,7 +6,7 @@ weight: 6
 
 # Глава 6: Эксплуатация и инциденты (сценарии реагирования + SLI/SLO + triage)
 
-## Пролог: Parts Unlimited, 2026. Brent как единая точка отказа
+## Пролог: Parts Unlimited, 2014. Brent как единая точка отказа
 
 **Ночь, пятница.** Телефон Brent звонит.
 
@@ -144,9 +144,50 @@ IF процесс ожидаемый AND ошибок в логах нет THEN:
 
 **Предусловие:** процесс ожидаемый, в логах есть ошибки
 
+### Decision packet (требует approval)
+
+```json
+{
+  "proposed_action": {
+    "type": "restart_service",
+    "target": "api-gateway",
+    "host": "api-gateway-03"
+  },
+  "evidence": [
+    {"source": "top", "signal": "api-gateway занимает CPU > <THRESHOLD>"},
+    {"source": "journald", "signal": "повторяющиеся ошибки в логах (например, OutOfMemoryError)"}
+  ],
+  "preconditions": [
+    "процесс ожидаемый (не компрометация)",
+    "есть верифицируемая гипотеза, почему restart может помочь",
+    "определён путь отката / план возврата к стабильному состоянию"
+  ],
+  "risk": {
+    "blast_radius": "один хост api-gateway-03",
+    "user_impact": "кратковременная деградация во время restart",
+    "data_risk": "низкий"
+  },
+  "rollback_plan": "Если после restart стало хуже → STOP и эскалация (ручной план: вернуть предыдущую конфигурацию/инстанс в пуле, задействовать резерв/канареечный хост).",
+  "verification": [
+    "CPU < <THRESHOLD> в течение <WINDOW>",
+    "нет новых ошибок в логах",
+    "health endpoint возвращает healthy"
+  ],
+  "requires_approval": true,
+  "approval_prompt": "Подтвердите restart сервиса api-gateway на api-gateway-03 (кратковременный impact допустим?)."
+}
+```
+
+**Approval gate:** STOP. Не выполняй restart, пока не получено явное approval.
+
 **Команды:**
 
-1. Graceful restart:
+0. Approval gate:
+- Сформируй decision packet (см. выше)
+- Запроси approval у дежурного/процесса
+- **STOP**, если approval не получен
+
+1. (После approval) Graceful restart:
 ```bash
 ssh api-gateway-03 "sudo systemctl restart api-gateway"
 ```
@@ -164,6 +205,43 @@ ssh api-gateway-03 "sudo systemctl is-active --quiet api-gateway"  # exit 0 ес
 
 **Предусловие:** легитимная высокая нагрузка
 
+### Decision packet (требует approval)
+
+```json
+{
+  "proposed_action": {
+    "type": "scale_out",
+    "target": "api-gateway",
+    "desired_delta": "+2",
+    "tool": "ansible-playbook"
+  },
+  "evidence": [
+    {"source": "top", "signal": "высокий CPU без ошибок в логах"},
+    {"source": "traffic", "signal": "рост нагрузки / p95 растёт (если доступно)"}
+  ],
+  "preconditions": [
+    "масштабирование допустимо (нет признаков компрометации)",
+    "есть лимиты/квоты и понятен максимум реплик",
+    "есть план отката (scale back / вывести инстансы)"
+  ],
+  "risk": {
+    "blast_radius": "api-gateway пул",
+    "user_impact": "минимальный (rollout/регистрация новых инстансов)",
+    "cost_risk": "рост ресурсоёмкости"
+  },
+  "rollback_plan": "Если метрики не улучшаются → scale back до прежнего значения, STOP и эскалация.",
+  "verification": [
+    "CPU/latency стабилизировались",
+    "нет ошибок в логах",
+    "health checks зелёные"
+  ],
+  "requires_approval": true,
+  "approval_prompt": "Подтвердите масштабирование api-gateway: current+2 (затраты допустимы?)."
+}
+```
+
+**Approval gate:** STOP. Не выполняй apply, пока не получено явное approval.
+
 **Команды:**
 
 1. Проверь текущее число реплик:
@@ -176,8 +254,13 @@ ansible-inventory -i inventories/production --list | jq '.api_gateway.hosts | le
 2. Scale up (current + 2):
 ```bash
 # Пример: добавить 2 инстанса в пул и запустить сервис на новых хостах (делает Ansible).
-# Сначала dry-run (проверка без применения), затем — только после подтверждения (approval) — реальный запуск.
-ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --check --extra-vars "api_gateway_instances=<current+2>"
+# Сначала dry-run (проверка без применения) — ОБЯЗАТЕЛЬНО:
+ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --check --diff --extra-vars "api_gateway_instances=<current+2>"
+
+# Approval gate: запроси approval и STOP без него.
+#
+# Затем — только после approval — apply (без --check):
+ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --diff --extra-vars "api_gateway_instances=<current+2>"
 ```
 
 **УСЛОВИЯ ОСТАНОВКИ (STOP):**
@@ -244,13 +327,13 @@ curl -s http://api-gateway-03/health | jq '.status'
 
 1. **Скопируй промпт** в чат
 2. **Симулируй инцидент** (или дождись реального)
-3. **Агент выполняет сценарий** (команды выполняются автономно)
+3. **Агент выполняет сценарий**: диагностика автономно; опасные команды — только после approval
 4. **Агент генерирует timeline** + анализ первопричины
 5. **Verification:** инцидент решён быстро, без лишней ручной координации
 
 ### Пример результата
 
-Агент выполнил сценарий реагирования автономно:
+Агент выполнил сценарий реагирования с явным approval gate для опасных действий:
 
 ```bash
 ## Alert fired
@@ -269,9 +352,17 @@ ssh api-gateway-03 "top -b -n 1 | head -<N>"
 # - Hypothesis: memory leak
 # - Decision: GO TO Step 2a (restart)
 
-# Step 2a: Fix (restart)
+# Step 2a: Decision packet + approval gate (STOP)
+# Decision packet сформирован (evidence/preconditions/risk/rollback/verification), requires_approval=true
+echo "STOP: требуется approval на restart api-gateway на api-gateway-03"
+echo "Запрос approval: подтвердите restart (кратковременный impact допустим?)"
+
+# Human approval (пример)
+echo "APPROVED by on-call: OK"
+
+# Step 2a: Fix (restart) — только после approval
 ssh api-gateway-03 "sudo systemctl restart api-gateway"
-api-gateway restarted
+api-gateway restarted (approved)
 
 ssh api-gateway-03 "sudo systemctl is-active --quiet api-gateway"
 api-gateway is active
@@ -302,7 +393,9 @@ curl -s http://api-gateway-03/health | jq '.status'
     {"time": "<TIME>", "event": "alert_fired", "details": "CPU > <THRESHOLD>"},
     {"time": "<TIME>", "event": "triage_started", "agent": true},
     {"time": "<TIME>", "event": "triage_completed", "root_cause": "memory_leak", "hypothesis": "OutOfMemoryError in /api/v1/reports"},
-    {"time": "<TIME>", "event": "fix_started", "action": "restart deployment"},
+    {"time": "<TIME>", "event": "approval_requested", "action": "restart api-gateway on api-gateway-03"},
+    {"time": "<TIME>", "event": "approval_granted", "approved_by": "<ON_CALL>", "channel": "<OUT_OF_BAND_CHANNEL>"},
+    {"time": "<TIME>", "event": "fix_started", "action": "restart service"},
     {"time": "<TIME>", "event": "fix_completed", "rollout": "successful"},
     {"time": "<TIME>", "event": "verification_passed", "cpu": "<VALUE>", "status": "healthy"}
   ],
@@ -717,7 +810,11 @@ else:
 
 **Commands:**
 ```bash
-# Graceful restart
+# Decision packet + approval gate:
+# - Сформируй decision packet (evidence/risk/rollback/verification)
+# - Запроси approval и STOP без него
+#
+# Graceful restart (после approval)
 ssh {{host}} "sudo systemctl restart {{service}}"
 
 # Wait for service to become active (max <WINDOW>)
@@ -735,7 +832,13 @@ ssh {{host}} "sudo systemctl is-active --quiet {{service}}"
 **Commands:**
 ```bash
 # Scale up через Ansible: добавить 2 инстанса в пул балансировщика и поднять сервис на новых хостах.
-ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --extra-vars "{{service}}_instances=<current+2>"
+# Dry-run (обязателен):
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<current+2>"
+
+# Approval gate: запроси approval и STOP без него.
+#
+# Apply (после approval):
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<current+2>"
 ```
 
 **STOP CONDITIONS:**
@@ -830,7 +933,13 @@ else:
 ```bash
 # Если проблема вызвана исчерпанием подключений из-за роста инстансов — временно уменьшить число инстансов
 # (и/или увеличить лимиты пула). Делается через Ansible.
-ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --extra-vars "{{service}}_instances=<current/2>"
+# Dry-run (обязателен):
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<current/2>"
+
+# Approval gate: запроси approval и STOP без него.
+#
+# Apply (после approval):
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<current/2>"
 ```
 
 **STOP CONDITIONS:**
@@ -842,7 +951,11 @@ ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scal
 
 **Commands:**
 ```bash
-# Restart service (kills leaked connections)
+# Decision packet + approval gate:
+# - Сформируй decision packet (evidence/risk/rollback/verification)
+# - Запроси approval и STOP без него
+#
+# Restart service (kills leaked connections) — после approval
 ssh {{host}} "sudo systemctl restart {{service}}"
 ssh {{host}} "sudo systemctl is-active --quiet {{service}}"
 ```
@@ -922,6 +1035,10 @@ else:
 
 **Вариант 1:** Освободить место за счёт логов (предпочтительно “штатными” механизмами)
 ```bash
+# Decision packet + approval gate:
+# - Сначала собери факты (df/du), оцени риск потери логов
+# - Запроси approval и STOP без него
+#
 # Важно: не удаляй логи “в лоб”, пока не понял, что именно можно безопасно ротацировать/сжимать.
 # Для journald:
 ssh {{host}} "sudo journalctl --vacuum-time=<RETENTION_WINDOW>"
@@ -935,11 +1052,41 @@ ssh {{host}} "df -h"
 
 **Вариант 2:** Очистить временные файлы (консервативно)
 ```bash
+# Decision packet + approval gate:
+# - Оцени влияние на процессы/расследование
+# - Запроси approval и STOP без него
+#
 # Важно: не используй широкие удаления вида `rm -rf /tmp/*` — это легко ломает процессы и расследования.
 # Предпочтительно: штатная очистка tmpfiles (если используется systemd):
 ssh {{host}} "sudo systemd-tmpfiles --clean"
 ssh {{host}} "df -h"
 ```
+
+### Decision packet + approval для очистки (обязательно)
+
+Перед любым `vacuum/logrotate/tmpfiles --clean` сформируй decision packet и запроси approval:
+
+```json
+{
+  "proposed_action": {"type": "free_disk_space", "target": "{{host}}", "methods": ["journald_vacuum", "logrotate_force", "tmpfiles_clean"]},
+  "evidence": [
+    {"source": "df", "signal": "disk usage > 90%"},
+    {"source": "du", "signal": "крупнейшие директории определены (например, /var/log)"}
+  ],
+  "preconditions": [
+    "понятно, что именно съело место",
+    "есть риск‑оценка влияния на расследование (логи) и на сервис",
+    "есть альтернативы/минимизация (например, точечная ротация, а не широкая чистка)"
+  ],
+  "risk": {"blast_radius": "один хост", "data_risk": "средний (потеря части логов при агрессивной очистке)"},
+  "rollback_plan": "Если очистка не помогла → STOP и эскалация (возможен перенос логов/расширение диска/временная деградация логирования по плану).",
+  "verification": ["disk usage < 80%", "service running", "health check = 200"],
+  "requires_approval": true,
+  "approval_prompt": "Подтвердите выполнение очистки диска (какой метод: journald vacuum / logrotate / tmpfiles clean) и допустимость влияния на логи."
+}
+```
+
+**Approval gate:** STOP. Не выполнять очистку до approval.
 
 **STOP CONDITIONS:**
 - Если disk usage всё ещё > 85% → ESCALATE (cleanup не помог)

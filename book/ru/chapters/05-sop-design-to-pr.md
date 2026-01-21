@@ -277,7 +277,9 @@ make test-unit
 - ⚠︎ Тест 3: аналитический запрос 55s → success (было на грани с 30s timeout)
 
 **Ручная проверка (нужна для аналитики):**
-- Деплой на стейджинг: `ansible-playbook -i inventories/staging playbooks/db-config.yml`
+- Деплой на стейджинг (Ansible: dry-run обязателен) → approval → apply:
+  - `ansible-playbook -i inventories/staging playbooks/db-config.yml --check --diff`
+  - `ansible-playbook -i inventories/staging playbooks/db-config.yml --diff`
 - Запустить смоук‑тест для аналитики: `./scripts/analytics-smoke.sh`
 - Проверить логи: `ssh staging-analytics-01 "sudo journalctl -u analytics-service --since '15 min ago' | grep timeout"`
 
@@ -707,7 +709,15 @@ Running 87 tests... OK (0m 45s)
 
 ```bash
 # Агент сделал деплой на staging
-$ ansible-playbook -i inventories/staging playbooks/report-service.yml --tags deploy --extra-vars "report_service_version=<NEW_VERSION>"
+$ ansible-playbook -i inventories/staging playbooks/report-service.yml --tags deploy --check --diff --extra-vars "report_service_version=<NEW_VERSION>"
+
+# Decision packet + approval gate (даже для staging — чтобы паттерн не “сломался” при переносе в production):
+# - dry-run показал ожидаемые изменения
+# - запроси подтверждение у ответственного за окружение/релиз
+# - STOP без подтверждения
+#
+# Apply (после approval):
+$ ansible-playbook -i inventories/staging playbooks/report-service.yml --tags deploy --diff --extra-vars "report_service_version=<NEW_VERSION>"
 Deploy report-service: OK
 
 # Агент выполнил smoke‑тесты
@@ -748,7 +758,11 @@ max = 18 (пик на тесте 3, безопасный запас)
 - Подключения к БД: пик 18/100 (безопасно)
 
 ### План отката
-`ansible-playbook -i inventories/production playbooks/report-service.yml --tags rollback --extra-vars "report_service_version=<PREV_VERSION>"`
+Dry-run (обязателен) → approval → apply:
+
+`ansible-playbook -i inventories/production playbooks/report-service.yml --tags rollback --check --diff --extra-vars "report_service_version=<PREV_VERSION>"`
+
+`ansible-playbook -i inventories/production playbooks/report-service.yml --tags rollback --diff --extra-vars "report_service_version=<PREV_VERSION>"`
 Оценка времени: < 5 min
 
 ### Мониторинг

@@ -376,7 +376,11 @@ def handle_incident(incident):
     "evidence": "ERROR: column 'new_field' does not exist",
     "root_cause": "миграция БД упала",
     "proposed_fix": {
-      "commands": ["ansible-playbook -i inventories/production playbooks/payroll-service.yml --tags rollback --extra-vars \"payroll_service_version=<PREV_VERSION>\""],
+      "commands": [
+        "ansible-playbook -i inventories/production playbooks/payroll-service.yml --tags rollback --check --diff --extra-vars \"payroll_service_version=<PREV_VERSION>\"",
+        "STOP: запросить approval (out-of-band), если dry-run ожидаемый",
+        "ansible-playbook -i inventories/production playbooks/payroll-service.yml --tags rollback --diff --extra-vars \"payroll_service_version=<PREV_VERSION>\""
+      ],
       "estimated_duration": "5 мин"
     }
   }

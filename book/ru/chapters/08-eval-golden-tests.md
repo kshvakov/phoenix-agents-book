@@ -1066,18 +1066,34 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Если у вас есть зависимости:
+      # - name: Install dependencies
+      #   run: pip install -r requirements.txt
+
       - name: Run Eval
         run: |
           python eval_agent.py --full-dataset
           
       - name: Check Metrics
         run: |
-          accuracy=$(jq '.metrics.accuracy' eval_results.json)
-          if (( $(echo "$accuracy < 0.80" | bc -l) )); then
-            echo "Eval FAILED: accuracy $accuracy < 80%"
-            exit 1
-          fi
-          echo "Eval PASSED: accuracy $accuracy"
+          python - <<'PY'
+          import json
+          with open("eval_results.json", "r", encoding="utf-8") as f:
+              data = json.load(f)
+          accuracy = float(data["metrics"]["accuracy"])
+          threshold = 0.80
+          if accuracy < threshold:
+              raise SystemExit(f"Eval FAILED: accuracy {accuracy:.4f} < {threshold:.2%}")
+          print(f"Eval PASSED: accuracy {accuracy:.4f} >= {threshold:.2%}")
+          PY
       
       - name: Golden Tests
         run: |
@@ -1088,8 +1104,27 @@ jobs:
     needs: eval  # Deploy only if eval passed
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install "ansible-core>=2.16"
+
+      # В реальном деплое здесь понадобятся секреты/ключи/known_hosts и окружение.
+      - name: Dry-run Deploy (required)
+        run: |
+          ansible-playbook -i inventories/production playbooks/agent.yml \
+            --tags deploy \
+            --check --diff \
+            --extra-vars "agent_version=v2"
+
       - name: Deploy to Production
-        run: ansible-playbook -i inventories/production playbooks/agent.yml --tags deploy --extra-vars "agent_version=v2"
+        run: |
+          ansible-playbook -i inventories/production playbooks/agent.yml \
+            --tags deploy \
+            --extra-vars "agent_version=v2"
 ```
 
 **Как избежать:**
