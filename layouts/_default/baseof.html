@@ -241,7 +241,8 @@
         {{- $graph = $graph | append $article -}}
     {{- end -}}
 
-    <script type="application/ld+json">{{ dict "@context" "https://schema.org" "@graph" $graph | jsonify }}</script>
+    {{- $jsonld := (dict "@context" "https://schema.org" "@graph" $graph | jsonify | safeJS) -}}
+    <script type="application/ld+json">{{ $jsonld }}</script>
 
     <script src="{{ "assets/site.js" | relURL }}"></script>
     {{ if .Site.Params.metrika_id }}
