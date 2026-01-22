@@ -811,7 +811,7 @@ sudo journalctl -u {{service}} --since "<WINDOW> ago" -n 100 | grep -iE "(error|
 ssh {{host}} "free -m"
 ```
 
-**Decision logic:**
+**Логика решений:**
 
 ```python
 if "OutOfMemoryError" in logs or memory_available < <THRESHOLD>:
@@ -932,7 +932,7 @@ ssh {{db_host}} "sudo -u postgres psql -c \"SHOW max_connections\""
 ssh {{host}} "sudo cat /etc/{{service}}/db.yml | grep pool_size"
 ```
 
-**Decision logic:**
+**Логика решений:**
 ```python
 if current_connections >= max_connections * 0.9:
     root_cause = "pool_exhaustion"
@@ -1482,7 +1482,7 @@ Lance с агентами делает следующий шаг: превращ
 Вместо “накопительных цифр” держим фокус на накопительном эффекте:
 - с каждой главой растёт воспроизводимость процесса
 - снижается доля ручной рутины и хаоса координации
-- качество и безопасность закрепляются через gates, eval и операционные процедуры
+- качество и безопасность закрепляются через контрольные точки качества, eval и операционные процедуры
 
 ---
 
