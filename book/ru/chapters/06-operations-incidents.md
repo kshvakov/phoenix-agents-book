@@ -279,12 +279,12 @@ ansible-inventory -i inventories/production --list | jq '.api_gateway.hosts | le
 ```bash
 # Пример: добавить 2 инстанса в пул и запустить сервис на новых хостах (делает Ansible).
 # Сначала dry-run (проверка без применения) — ОБЯЗАТЕЛЬНО:
-ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --check --diff --extra-vars "api_gateway_instances=<current+2>"
+ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --check --diff --extra-vars "api_gateway_instances=<CURRENT_PLUS_2>"
 
 # Approval gate: запроси approval и STOP без него.
 #
 # Затем — только после approval — apply (без --check):
-ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --diff --extra-vars "api_gateway_instances=<current+2>"
+ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --diff --extra-vars "api_gateway_instances=<CURRENT_PLUS_2>"
 ```
 
 **УСЛОВИЯ ОСТАНОВКИ (STOP):**
@@ -857,12 +857,12 @@ ssh {{host}} "sudo systemctl is-active --quiet {{service}}"
 ```bash
 # Scale up через Ansible: добавить 2 инстанса в пул балансировщика и поднять сервис на новых хостах.
 # Dry-run (обязателен):
-ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<current+2>"
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<CURRENT_PLUS_2>"
 
 # Approval gate: запроси approval и STOP без него.
 #
 # Apply (после approval):
-ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<current+2>"
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<CURRENT_PLUS_2>"
 ```
 
 **STOP CONDITIONS:**
@@ -958,12 +958,12 @@ else:
 # Если проблема вызвана исчерпанием подключений из-за роста инстансов — временно уменьшить число инстансов
 # (и/или увеличить лимиты пула). Делается через Ansible.
 # Dry-run (обязателен):
-ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<current/2>"
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<CURRENT_DIV_2>"
 
 # Approval gate: запроси approval и STOP без него.
 #
 # Apply (после approval):
-ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<current/2>"
+ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<CURRENT_DIV_2>"
 ```
 
 **STOP CONDITIONS:**

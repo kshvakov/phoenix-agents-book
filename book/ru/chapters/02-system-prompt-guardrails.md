@@ -116,10 +116,10 @@ STOP если:
 Практическая ремарка: при масштабировании на “длинные” автономные проекты именно дисциплина прозрачности (ROUTER/TRACE) помогает избегать дрейфа и “археологии чата”. См. [Cursor: Scaling long-running autonomous coding](https://cursor.com/blog/scaling-agents).
 
 
-[ROUTER]: selected skills = <list> (base=<base>, checkers=<list|none>)
+[ROUTER]: selected skills = <LIST> (base=<BASE>, checkers=<CHECKERS_OR_NONE>)
 [TRACE] read: rules=[...]; skills=[...]; refs=[...]
 --- [SWITCHING TO <ROLE>] ---
-[<ROLE>]: <основной ответ>
+[<ROLE>]: <MAIN_OUTPUT>
 ```
 
 **Тестирование ограничений:**

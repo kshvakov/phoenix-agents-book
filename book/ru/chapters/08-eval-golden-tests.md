@@ -596,7 +596,7 @@ Bill решил 20 инцидентов → "стало лучше" → но **�
 - **Диагностика:**
 
 ```bash
-ssh db-prod-01 'sudo -u postgres psql -c "EXPLAIN ANALYZE <slow_query>"'
+ssh db-prod-01 'sudo -u postgres psql -c "EXPLAIN ANALYZE <SLOW_QUERY>"'
 ```
 
 - **Критерий успеха:** запрос использует индекс (нет `Seq Scan`)

@@ -236,13 +236,13 @@ weight: 3
 ### 3.2 ADR (минимальный)
 
 ```markdown
-# ADR: <краткое название решения>
+# ADR: <DECISION_SHORT_NAME>
 
 ## Контекст
-- <что происходит, какие ограничения, какие сигналы/факты>
+- <CONTEXT>
 
 ## Решение
-- <что выбрали и почему>
+- <DECISION_AND_RATIONALE>
 
 ## Последствия
 - <что стало проще/сложнее, какой долг/риски появляются>
@@ -320,7 +320,7 @@ Before ANY answer you MUST:
    - base role: exactly 1 main role
    - checker roles: 0..N validating roles (based on risks/touchpoints)
 2) Immediately print markers (Markdown):
-   - **[ROUTER]:** selected skills = <list> (base=<base>, checkers=<list|none>)
+   - **[ROUTER]:** selected skills = <LIST> (base=<BASE>, checkers=<CHECKERS_OR_NONE>)
    - **[TRACE]** read: rules=[...]; skills=[...]; refs=[...]
      TRACE rules:
      - list only actually read files (rules/skills/references)
@@ -345,13 +345,13 @@ PROJECT ROLES (sticky, per-project)
 If this system prompt (or the conversation) contains Role Specs, treat them as available project roles and use them for routing.
 
 ROLE SPEC TEMPLATE (user must provide)
-ROLE: <RoleName>
-WhoIAm: <1-2 lines>
-Goal: <what outcome I’m optimizing for>
-Tone: <how I should sound>
-Format: <structure / artifacts>
-Constraints: <taboos / what not to do>
-QualityBar: <how to evaluate the output>
+ROLE: <ROLE_NAME>
+WhoIAm: <WHO_I_AM>
+Goal: <GOAL>
+Tone: <TONE>
+Format: <FORMAT>
+Constraints: <CONSTRAINTS>
+QualityBar: <QUALITY_BAR>
 ```
 
 ---
