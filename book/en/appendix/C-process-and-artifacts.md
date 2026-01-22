@@ -309,8 +309,6 @@ A `decision packet` makes a decision **verifiable**: it separates facts from hyp
 
 This protocol is working discipline for an agent. Before any answer, the agent must select exactly one base role and 0..N checker roles (based on risks/touchpoints), then explicitly record TRACE (what was actually read/used).
 
-Below is the canonical protocol text. It is best stored once and referenced to avoid drift.
-
 ```text
 ROLE ROUTING (MANDATORY)
 
