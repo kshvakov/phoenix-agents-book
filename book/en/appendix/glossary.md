@@ -21,7 +21,7 @@ If a term is kept in its original English form (for example, `Bus factor`, `Open
 - **API**: *Application Programming Interface* — the contract between services/clients.
 - **Bus factor**: how many people can drop out before work stops; practically: how many people can complete a critical task without escalating to a single expert.
 - **CI/CD**: *Continuous Integration / Continuous Delivery* — build/test/delivery pipeline.
-- **DoD**: *Definition of Done* — verifiable “done” criteria for a task/iteration.
+- **DoD**: *Definition of Done* — verifiable "done" criteria for a task/iteration.
 - **CTO**: *Chief Technology Officer*.
 - **DevOps**: practices and a role between development and operations (delivery, infrastructure, automation).
 - **FTE**: *Full-Time Equivalent* — capacity unit for modeling.
@@ -34,7 +34,7 @@ If a term is kept in its original English form (for example, `Bus factor`, `Open
 - **GraphQL**: a query language and schema for APIs; in this book used as an API contract format.
 - **OpenAPI**: a machine-readable API contract specification.
 - **PII**: *Personally Identifiable Information*.
-- **PR**: *Pull Request* — change proposal + review + checks → merge.
+- **PR**: *Pull Request* — change proposal + review + checks -> merge.
 - **RFC**: *Request for Comments* — a document/process for discussing changes (often cross-team/architectural).
 - **ROI**: *Return on Investment*.
 - **SRE**: *Site Reliability Engineering*.
@@ -56,14 +56,14 @@ This book often uses placeholders (stub values) in angle brackets—for example,
 **Rules:**
 
 - **Format:** `<UPPER_SNAKE_CASE>` with no spaces (for example, `<WINDOW>`, not `< WINDOW >`).
-- **Meaning:** placeholders are not “missing text” and should not be translated. They are variables you should replace with real thresholds/values.
+- **Meaning:** placeholders are not "missing text" and should not be translated. They are variables you should replace with real thresholds/values.
 - **Scope:** placeholders appear in templates (prompts/SOP/runbooks/AC/DoD). In production artifacts, replace them or mark them explicitly as TBD.
 
 **Examples:**
 
-- `<WINDOW>` — time window: `30m`, `24h`, `7d` (for example: “last `<WINDOW>`” → “last 7d”).
-- `<THRESHOLD>` — threshold: `0.5%`, `200ms`, `80% CPU` (for example: “error rate > `<THRESHOLD>`” → “error rate > 0.5%”).
-- `<N>` — count: `50`, `1000` (for example: “top-`<N>` incidents” → “top-50 incidents”).
+- `<WINDOW>` — time window: `30m`, `24h`, `7d` (for example: "last `<WINDOW>`" -> "last 7d").
+- `<THRESHOLD>` — threshold: `0.5%`, `200ms`, `80% CPU` (for example: "error rate > `<THRESHOLD>`" -> "error rate > 0.5%").
+- `<N>` — count: `50`, `1000` (for example: "top-`<N>` incidents" -> "top-50 incidents").
 - `<TTRC_SECONDS>` / `<TTRC_TARGET>` — actual/target time to root cause: `900` / `600` (seconds) or your chosen explicit format.
 
 ---
@@ -73,20 +73,20 @@ This book often uses placeholders (stub values) in angle brackets—for example,
 - **AI agent**: an autonomous task executor built on a model/tooling that operates in a role under guardrails, produces artifacts, runs checks, and escalates under uncertainty/risk.
 - **Allowlist**: a list of permitted actions/commands/operations. Everything else is denied by default.
 - **Audit trail**: a record of who/what/when (commands, changes, decisions, artifacts) to support investigation and control.
-- **Baseline**: a “before” reference point for metrics/quality/speed.
+- **Baseline**: a "before" reference point for metrics/quality/speed.
 - **Backwards compatible**: the change does not break existing clients/contracts; rollback is possible without a domino effect.
 - **Business case**: a justification document (why, effect, risks, success criteria, pilot plan).
 - **CAB**: *Change Advisory Board* — classic ITIL-style change approval process.
 - **Canary rollout**: gradual release to a small traffic/instance slice with measured signals before expanding.
 - **Change management**: adopting changes in roles/processes/tools in a controlled way (not chaos).
-- **Dry run**: execute an operation in “no-apply” mode (for example, `--check`) to validate expected effects.
+- **Dry run**: execute an operation in "no-apply" mode (for example, `--check`) to validate expected effects.
 - **Eval dataset**: a set of scenarios/cases used to measure agent quality (for example, incidents from history).
 - **Edge case**: a rare/hard scenario where systems tend to break; the opposite of the happy path.
 - **Evidence**: observable data, not promises: metrics, artifacts, audit logs, verification outputs.
 - **TRACE**: a context audit block: what was actually read/used (rules, `SKILL.md`, artifact links) so you can see what conclusions stand on and reproduce the work.
-- **Gate / quality gate**: a checkpoint where an agent must stop and present artifacts/evidence for verification (by humans or automation).
+- **Gate / quality gate**: a gate where an agent must stop and present artifacts/evidence for verification (by humans or automation).
 - **ROUTER / Skill Router**: a routing discipline: choose one base role and 0..N checker roles based on risk/touchpoints, then record TRACE before the main output.
-- **Reviewer gate**: a checkpoint where a human must review before continuation (or before risky/irreversible steps).
+- **Reviewer gate**: a gate where a human must review before continuation (or before risky/irreversible steps).
 - **golden tests**: a fixed set of tests/cases serving as a quality reference when agents/processes change.
 - **Agent Skills**: an open format for portable procedures/knowledge packages for agents (folder with `SKILL.md`, possibly `scripts/`, `references/`, `assets/`).
 - **`SKILL.md`**: the primary Agent Skill file with YAML front matter and markdown instructions.
@@ -106,7 +106,7 @@ This book often uses placeholders (stub values) in angle brackets—for example,
 - **Out-of-band approval**: approval through a separate channel/process independent of potentially compromised text context (for example, a UI confirmation).
 - **p95 / p99**: percentiles; p95 is the value below which 95% of observations fall.
 - **Prompt injection**: an attack/error where an agent treats external data (logs, tickets, comments) as instructions and violates rules.
-- **Prompt template**: a repeatable task framing structure (context → guardrails → DoD → verification plan → expected output).
+- **Prompt template**: a repeatable task framing structure (context -> guardrails -> DoD -> verification plan -> expected output).
 - **Redaction**: masking/removing secrets and PII from logs/artifacts.
 - **Regression**: quality/metric degradation after a change.
 - **Resume**: continuing an earlier worker run with its saved context/state.
@@ -118,15 +118,15 @@ This book often uses placeholders (stub values) in angle brackets—for example,
 - **Subagent**: a specialized executor with separate context that receives a narrow task for focus/isolation (a work-organization concept, not a vendor feature requirement).
 - **Threat model**: a structured description of assets, threats, attack vectors, and mitigations before production.
 - **Triage**: first-pass incident work: gather facts, narrow hypotheses, decide escalation/action.
-- **Verification agent (verifier)**: an independent skeptic that proves “done” is actually true; returns a report of what passed/failed/was not checked.
+- **Verification agent (verifier)**: an independent skeptic that proves "done" is actually true; returns a report of what passed/failed/was not checked.
 - **Verification / verification plan**: how to validate correctness (sampling, edge cases, metrics, before/after comparison, acceptance thresholds).
 - **Versioning / semver**: versioning rules for templates/prompts/processes to track breaking changes and compatibility.
 - **Test runner**: a role that proactively runs tests/checks (including golden tests) and drives the loop to green without rewriting expectations.
-- **Debugger**: a role for root cause analysis: reproduce → localize → minimal fix/experiment → verify with evidence.
+- **Debugger**: a role for root cause analysis: reproduce -> localize -> minimal fix/experiment -> verify with evidence.
 
 ---
 
-## Tools and formats (in this book’s context)
+## Tools and formats (in this book's context)
 
 - **Agent**: an agent that can read/change files, run commands, collect artifacts, and drive an end-to-end task (for example, Cursor Agent).
 - **Chat mode**: a dialogue interface, useful for discussion/design/research.

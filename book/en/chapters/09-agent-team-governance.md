@@ -7,7 +7,7 @@ weight: 9
 
 # Chapter 9: agent teams + governance
 
-## Prologue: Parts Unlimited. The payroll incident and a “team in a box”
+## Prologue: Parts Unlimited. The payroll incident and a \"team in a box\"
 
 **Friday night.** The payroll system is down, which means some employees may not get paid on time. The on-call engineer declares a P0 incident.
 
@@ -22,19 +22,19 @@ Bill Palmer pulls people into a conference call:
 After a while, the picture becomes clear: a DB migration failed, and the service is reading a schema that does not exist in production yet. The incident gets resolved, but the same old problems show up:
 
 1. **Assembling the team takes time** (you have to wake people up, connect them, rehydrate context).
-2. **Work duplication** (everyone “just in case” looks at the same logs).
+2. **Work duplication** (everyone \"just in case\" looks at the same logs).
 3. **Context stitching is manual** (someone must merge timeline, hypotheses, facts, and decisions).
 4. **Knowledge is not captured** as a reusable process: next time starts from scratch.
 
-In 2014, Bill doesn’t have a “team in a box”. He has people on a call — and himself as the central decision point.
+In 2014, Bill doesn't have a \"team in a box\". He has people on a call — and himself as the central decision point.
 
 ---
 
-### 2026: Lance and a “team in a box”
+### 2026: Lance and a \"team in a box\"
 
-**Friday night.** Lance Bishop’s phone rings almost the same way it rang for every on-call engineer ten years earlier.
+**Friday night.** Lance Bishop's phone rings almost the same way it rang for every on-call engineer ten years earlier.
 
-But in 2026 there’s one key difference: Lance doesn’t start with “let’s wake everyone up and look”. He starts with: **let’s collect context and lock in a contract**.
+But in 2026 there's one key difference: Lance doesn't start with \"let's wake everyone up and look\". He starts with: **let's collect context and lock in a contract**.
 
 He opens the incident channel, links the ticket, pins two messages:
 

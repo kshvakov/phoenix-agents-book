@@ -562,7 +562,7 @@ Wes deployed and broke production. Brent tried to roll back and lost time: searc
 #### Rollback plan: service v2 → service v1
 
 Before deployment, document:
-- current version: v1 (commit SHA: `<SHA>`)
+- current version: v1 (commit SHA: TBD)
 - current config location: `config/service-v1.yml`
 - current replica count: <N>
 
@@ -1350,9 +1350,4 @@ You’ve mastered the chapter if you can:
 
 ### Next steps
 
-**Chapter 8:** eval dataset + golden tests — measure agent quality with evidence (not “feels good”).
-
-
-
-
-
+**Chapter 8:** eval dataset + golden tests — measure agent quality with evidence (not \"by feel\").

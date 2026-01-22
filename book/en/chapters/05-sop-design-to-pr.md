@@ -27,7 +27,7 @@ Any legacy-related task meant:
 
 **Result:**
 
-Brent works a lot (in this storyline: ~60-70 hours/week). Bus factor = 1. Erik Reid, Bill Palmer's mentor, asks: "What happens if Brent gets sick? Or quits?"
+Brent is overloaded (in this storyline: ~60–70 hours/week). Bus factor = 1. Erik Reid, Bill Palmer's mentor, asks: "What happens if Brent gets sick? Or quits?"
 
 Bill answers honestly: "We stop."
 

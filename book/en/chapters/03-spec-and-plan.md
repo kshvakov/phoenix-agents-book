@@ -11,9 +11,9 @@ weight: 3
 
 In Chapters 1–2 you learned how to get value from an agent quickly and safely.
 
-Now the VP of Engineering says: "Good. Now turn this into a manageable Phoenix Project: what exactly are we shipping in v1, what are the risks, and how do we verify the release is actually delivered."
+Now the VP of Engineering says: "Good. Now turn this into a manageable Phoenix Project. What exactly are we shipping in v1? What are the risks? And how do we prove the release is actually delivered?"
 
-Lance Bishop thinks: "This is no longer a one-off task. This is a project. We need a spec."
+Lance Bishop thinks: "This isn’t a one-off task anymore. It’s a project. We need a spec."
 
 **The difference:**
 - **A single task:** "analyze the logs" → fast output
@@ -23,23 +23,23 @@ Lance Bishop thinks: "This is no longer a one-off task. This is a project. We ne
 
 ## A scene from "The Phoenix Project" (2014)
 
-**Book chapters 10-11: Erik Reid asks Bill about requirements**
+**Chapters 10–11: Erik Reid asks Bill about requirements**
 
 Erik Reid (an ops consultant and Bill Palmer’s mentor) comes to Parts Unlimited to understand Phoenix Project. He sits down with Bill and asks simple questions.
 
 **Erik:** "Show me the requirements for Phoenix Project."
 
-**Bill:** "Requirements? Well… they exist. In developers’ heads. In Jira. And in email threads with the business."
+**Bill:** "Requirements? Well… they exist. In developers' heads. In Jira. And in email threads with the business."
 
 **Erik:** "Do you have a formal spec?"
 
-**Bill:** "No. We’re Agile. We don’t write specs. We have user stories."
+**Bill:** "No. We're Agile. We don't write specs. We have user stories."
 
 **Erik:** "Okay. What about non-functional requirements? Performance, security, reliability?"
 
 **Bill:** (silence) "Well… we assume the system should be fast and safe."
 
-**Erik:** "What does ‘fast’ mean? p95 latency below a threshold? Within an SLA?"
+**Erik:** "What does 'fast' mean? p95 latency below a threshold? Within an SLA?"
 
 **Bill:** "I don’t know. We never wrote it down."
 
@@ -61,7 +61,7 @@ Options:
 
 They pick option 1. Release slips. The CEO is furious. The team panics.
 
-**Erik:** "This is what happens when there’s no formal spec. Critical NFRs get ‘forgotten’. Assumptions aren’t checked. Risks aren’t mitigated."
+**Erik:** "This is what happens when there's no formal spec. Critical NFRs get 'forgotten'. Assumptions aren't checked. Risks aren't mitigated."
 
 **Core problems of the 2014 approach:**
 - no formal spec: requirements live in people’s heads

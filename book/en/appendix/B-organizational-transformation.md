@@ -7,9 +7,9 @@ weight: 2
 
 # Appendix B: organizational transformation
 
-This appendix is about how to **embed** an agent practice into an organization so it does not depend on enthusiasts, does not turn into a "magic button," and holds up under review.
+This appendix is about how to **embed** an agent practice into an organization so it does not depend on enthusiasts, does not turn into a \"magic button\", and holds up under review.
 
-The book’s principle is simple: **we don’t sell numbers; we build verifiable loops.** So instead of "X times faster" you will see:
+The book's principle is simple: **we don't sell numbers; we build verifiable loops.** So instead of \"X times faster\" you will see:
 - effect hypotheses
 - risks and mitigations
 - verification methods

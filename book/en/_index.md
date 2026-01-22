@@ -17,7 +17,7 @@ In the style of *The Phoenix Project*: from chaos to effectiveness with AI agent
 **Fast start for engineers:**
 
 1. Start with [Chapter 1]({{< relref "chapters/01-first-prompt.md" >}}) — create your first working prompt and verification plan
-2. Use the “Quick start” section in each chapter for immediate practical value
+2. Use the "Quick start" section in each chapter for immediate practical value
 3. Come back to the full chapter when you need depth
 
 **For managers and business stakeholders:**
@@ -39,7 +39,7 @@ In the style of *The Phoenix Project*: from chaos to effectiveness with AI agent
 
 ### Case 2: the Brent bottleneck (Chapters 5–7)
 
-- [Chapter 5: SOP “design -> PR”]({{< relref "chapters/05-sop-design-to-pr.md" >}})
+- [Chapter 5: SOP "design -> PR"]({{< relref "chapters/05-sop-design-to-pr.md" >}})
 - [Chapter 6: operations and incidents]({{< relref "chapters/06-operations-incidents.md" >}})
 - [Chapter 7: security and infrastructure]({{< relref "chapters/07-security-infrastructure.md" >}})
 

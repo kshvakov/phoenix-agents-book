@@ -101,7 +101,7 @@ You make strategic calls. You care about competitiveness.
 
 ---
 
-## The book’s approach
+## The book's approach
 
 ### A transformation story, not a technical manual
 
@@ -109,7 +109,7 @@ The book is written as a transformation story of Parts Unlimited (from *The Phoe
 
 **Three transformation arcs:**
 1. **Deployment chaos** → from manual chaos to repeatable analysis and a controlled delivery process
-2. **The Brent bottleneck** → from "knowledge in one person’s head" to SOPs and delegation
+2. **The Brent bottleneck** -> from "knowledge in one person's head" to SOPs and delegation
 3. **The payroll incident** → from panic and manual triage to systematic response with checks and escalation
 
 **Each chapter:**
@@ -161,7 +161,7 @@ Result: less toil, faster feedback, higher predictability and repeatability.
 - [Chapter 4: architecture design](chapters/04-architecture-v1.md) — from requirements to a design
 
 ### Arc 2: the Brent bottleneck (chapters 5–7)
-- [Chapter 5: `SOP` “design → PR”](chapters/05-sop-design-to-pr.md) — development from design to PR with gates
+- [Chapter 5: `SOP` "design -> PR"](chapters/05-sop-design-to-pr.md) — development from design to PR with gates
 - [Chapter 6: operations and incidents](chapters/06-operations-incidents.md) — `runbook`, SLI/SLO, triage
 - [Chapter 7: security and infrastructure](chapters/07-security-infrastructure.md) — baseline security, IaC
 
@@ -171,6 +171,14 @@ Result: less toil, faster feedback, higher predictability and repeatability.
 - [Chapter 10: capstone](chapters/10-capstone-full-cycle.md) — a full cycle from business requirement to production
 
 **From a simple 10-line prompt to a production system (2000+ lines) in 10 chapters.**
+
+---
+
+## What to expect
+
+- The book is opinionated: it favors **verifiable artifacts** over “smart” prose.
+- You will see copy-pasteable templates (prompts, SOPs, runbooks, decision packets) and the constraints that make them safe.
+- The story is a tool to make trade-offs concrete; the point is a repeatable engineering process.
 
 ---
 
@@ -185,9 +193,30 @@ book/
 
 ---
 
-## License
+## Outcomes after reading
 
-See [`LICENSE`](../../LICENSE).
+### For engineers
+
+- You can turn vague tasks into spec v1 + plan v1 with measurable acceptance criteria.
+- You can design guardrails and stop conditions that keep agent workflows safe in production.
+- You can operationalize agent work: runbooks, triage, escalation, post-incident artifacts.
+
+### For managers
+
+- You can evaluate impact without hype: metrics, gates, and repeatable delivery practices.
+- You can roll out agents as a change program: baseline, pilot, governance, and gradual adoption.
+
+### For business stakeholders
+
+- You can reason about ROI, risks, and success criteria in a way that survives production reality.
+
+---
+
+## Contributing and feedback
+
+If you spot unclear language, a broken link, or a drift in terminology, open an issue or a PR with a concrete suggestion (what to change and why).
+
+---
 
 ## License
 

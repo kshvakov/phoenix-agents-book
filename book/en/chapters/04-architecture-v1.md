@@ -10,13 +10,13 @@ weight: 4
 ## Prologue: from plan to design
 
 In Chapters 1–3 you went from a first prompt to a project plan:
-- Chapter 1: you got value quickly (first artifacts + verification without “days of manual work”)
+- Chapter 1: you got value quickly (first artifacts + verification without days of manual toil)
 - Chapter 2: you added control (guardrails, stop conditions)
 - Chapter 3: you formalized Phoenix Project (spec v1, plan v1)
 
-Now Lance Bishop starts a new conversation with the agent and thinks: “The spec and plan are ready. But **how** do we build it? Which components? Which APIs? Which tradeoffs?”
+Now Lance Bishop starts a new conversation with the agent and thinks: "The spec and plan are ready. But **how** do we build it? Which components? Which APIs? Which tradeoffs?"
 
-VP Engineering asks: “Show me the design. Explain why it’s done this way.”
+The VP of Engineering asks: "Show me the design. Explain why it's done this way."
 
 **The difference:**
 - **Plan:** work decomposition, tasks, estimates (what to do and in what order)
@@ -26,7 +26,7 @@ VP Engineering asks: “Show me the design. Explain why it’s done this way.”
 
 ## A scene from "The Phoenix Project" (2014)
 
-**Book chapters 12–13: John Pesche shows the “architecture” of Phoenix Project**
+**Chapters 12–13: John Pesche shows the \"architecture\" of Phoenix Project**
 
 Bill Palmer goes to John Pesche, the chief architect at Parts Unlimited, to understand Phoenix Project’s architecture. John opens a PowerPoint deck: “Architecture Overview.”
 

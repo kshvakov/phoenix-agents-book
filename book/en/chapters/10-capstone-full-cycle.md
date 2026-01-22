@@ -11,19 +11,19 @@ weight: 10
 
 **January 2026.** Steve Masters closes his laptop after the Phoenix Project report and looks at Lance Bishop without the usual drama—almost matter-of-factly.
 
-**Steve:** "We survived last year. Deploys got more predictable. Incidents got calmer. But now we’re launching a new region. Load will go up. And I don’t want us to fall back into heroics again."
+**Steve:** "We survived last year. Deploys got more predictable. Incidents got calmer. But now we're launching a new region. Load will go up. And I don't want us to fall back into heroics again."
 
-**Lance:** "If we respond the same way we used to, we’ll burn out. And we’ll end up back in ‘Friday night P0’ mode."
+**Lance:** "If we respond the same way we used to, we'll burn out. And we'll end up back in 'Friday night P0' mode."
 
 **Steve:** "Then make it scalable. I want routine incidents to be handled via approved scenarios. And dangerous and critical ones to reliably escalate to a human—without improvisation."
 
-Lance nods. He already knows that “make it scalable” is not “write an agent”. It’s building a **full cycle**: from business requirements to production operations, with guardrails, verification, and artifacts you can review.
+Lance nods. He already knows that \"make it scalable\" is not \"write an agent\". It's building a **full cycle**: from business requirements to production operations, with guardrails, verification, and artifacts you can review.
 
 ---
 
 ## Quick start: a `decision packet` v0 in 20 minutes
 
-When the task sounds like “automate incident response”, it’s tempting to jump straight into architecture. Don’t.
+When the task sounds like \"automate incident response\", it's tempting to jump straight into architecture. Don't.
 
 The first fast move is to produce a **`decision packet` v0**: a short, reviewable packet that separates facts from hypotheses and pins down the risk boundary.
 

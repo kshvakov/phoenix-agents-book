@@ -27,7 +27,7 @@ Not **instead of** expertise. **On top of** expertise.
 
 ## A scene from "The Phoenix Project" (2014)
 
-**Book chapters 3-4: "Why is every deployment a catastrophe?"**
+**Chapters 3–4: "Why is every deployment a catastrophe?"**
 
 Steve Masters, the CEO, calls Bill Palmer into his office. The question is simple and brutal: "Why does Phoenix Project keep slipping? Why does every deployment break?"
 
@@ -38,7 +38,7 @@ Over the next few days, Bill and his team gather information manually:
 - Patty McKee assembles email threads with incident reports (lots of email; context gets lost)
 - Bill looks for patterns in Jira tickets (noise, weak labeling, hard to filter)
 
-**The outcome of the analysis (manual team work):**
+**The outcome of the analysis (manual teamwork):**
 - The deployment pipeline has many manual steps (some descriptions are stale)
 - Failure rate is high (exact numbers are unclear)
 - Deployment and rollback time is long and unpredictable

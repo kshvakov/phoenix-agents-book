@@ -1,6 +1,6 @@
 ---
 title: "Chapter 8: eval dataset + golden tests"
-description: "How to measure agent quality: eval datasets, golden tests, regressions, and a continuous improvement loop without “trusting the answer”."
+description: "How to measure agent quality: eval datasets, golden tests, regressions, and a continuous improvement loop without \"trusting the answer\"."
 lastmod: 2026-01-21
 weight: 8
 ---
