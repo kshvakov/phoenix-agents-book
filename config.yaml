@@ -26,6 +26,7 @@ languages:
     contentDir: book/ru
     params:
       headerTitle: 'Кирилл Шваков'
+      og_image: 'og-image.svg'
     outputs:
       home: ["HTML", "RSS"]
   en:
@@ -35,6 +36,7 @@ languages:
     contentDir: book/en
     params:
       headerTitle: 'Kirill Shvakov'
+      og_image: 'og-image-en.svg'
     outputs:
       home: ["HTML", "RSS"]
 
@@ -53,6 +55,8 @@ ignoreFiles:
 
 markup:
   goldmark:
+    parser:
+      autoHeadingID: true
     renderer:
       unsafe: true
 

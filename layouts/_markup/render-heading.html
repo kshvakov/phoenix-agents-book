@@ -1,0 +1,34 @@
+{{- /*
+Render hook for Markdown headings.
+
+Goals:
+- Ensure stable heading ids consistent with Hugo's `.Anchor` (and TableOfContents)
+- Add a small permalink icon that copies full URL on click (JS handles copy)
+*/ -}}
+
+{{- $level := .Level -}}
+{{- $id := .Anchor -}}
+{{- $lang := "" -}}
+{{- with .Page -}}
+  {{- with .Language -}}
+    {{- $lang = .Lang -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $label := "Скопировать ссылку на раздел" -}}
+{{- if eq $lang "en" -}}
+  {{- $label = "Copy link to section" -}}
+{{- end -}}
+
+<h{{ $level }} id="{{ $id }}">
+  {{ .Text | safeHTML }}
+  {{- if ge $level 2 -}}
+  <a
+    class="heading-anchor"
+    href="#{{ $id }}"
+    aria-label="{{ $label }}"
+    title="{{ $label }}"
+    data-anchor-id="{{ $id }}"
+  >#</a>
+  {{- end -}}
+</h{{ $level }}>

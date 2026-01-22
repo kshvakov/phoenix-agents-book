@@ -251,5 +251,71 @@
             });
         });
     }
+
+    // Heading anchors: copy permalink to clipboard
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        if (!target || !(target instanceof Element)) return;
+
+        const anchor = target.closest('.heading-anchor');
+        if (!anchor) return;
+
+        // Allow normal behavior for modified clicks / non-left clicks
+        if (e.defaultPrevented) return;
+        if (e.button !== 0) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+        const href = anchor.getAttribute('href');
+        if (!href || href.charAt(0) !== '#') return;
+
+        e.preventDefault();
+
+        // Update URL hash without scrolling twice
+        try {
+            history.replaceState(null, '', href);
+        } catch (err) {
+            // ignore
+        }
+
+        const fullUrl = window.location.href;
+
+        function setCopiedState() {
+            anchor.setAttribute('data-copied', 'true');
+            window.setTimeout(function() {
+                anchor.removeAttribute('data-copied');
+            }, 1200);
+        }
+
+        function fallbackNavigate() {
+            // last resort: normal navigation to the hash
+            window.location.hash = href.slice(1);
+        }
+
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(fullUrl).then(function() {
+                setCopiedState();
+            }).catch(function() {
+                fallbackNavigate();
+            });
+        } else {
+            // Legacy fallback: try execCommand copy
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = fullUrl;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.top = '-9999px';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand && document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (ok) setCopiedState();
+                else fallbackNavigate();
+            } catch (err) {
+                fallbackNavigate();
+            }
+        }
+    });
 })();
 
