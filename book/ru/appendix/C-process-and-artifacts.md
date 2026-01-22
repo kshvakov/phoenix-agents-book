@@ -202,10 +202,10 @@ weight: 3
 
 ### 2.8 Качество изменений (измеримость)
 
-- **Eval‑набор + Golden tests**  
+- **eval-набор + golden tests**  
   - **Зачем:** измерять качество изменений и ловить регрессии до продакшена.  
   - **Владелец:** владелец практики/системы.  
-  - **Готово, если:** eval‑набор репрезентативен, Golden tests стабильны и запускаются регулярно.  
+  - **Готово, если:** eval-набор репрезентативен, golden tests стабильны и запускаются регулярно.  
   - **См. также:** Глава 8.
 
 ### 2.9 Управление практикой (чтобы работало “по умолчанию”)
@@ -252,6 +252,56 @@ weight: 3
 ```
 
 ---
+
+<a id="decision-packet-contract"></a>
+### 3.3 Decision packet (минимальный контракт)
+
+`decision packet` — это артефакт, который делает решение **проверяемым**: отделяет факты от гипотез, фиксирует риск и явно показывает, что требует подтверждения человека.
+
+**Минимально достаточные поля (смысл важнее имён полей):**
+
+- `summary`: 1–3 предложения «что случилось / что делаем дальше».
+- `timeline[]`: ключевые события с временем (что произошло и когда).
+- `hypotheses[]`: гипотезы с уровнем уверенности + почему (на каких фактах основано).
+- `evidence[]`: доказательства (логи/метрики/ссылки на дашборды/PR) — без “кажется”.
+- `next_checks[]`: следующие безопасные проверки (safe by default).
+- `risk`: что может пойти не так (data/security/blast radius) и почему это важно.
+- `rollback`: как откатываем/останавливаем ухудшение (если применимо).
+- `verification`: как проверим, что стало лучше (метрики/тесты/выборка).
+- `requires_approval`: что именно требует подтверждения человека и почему.
+- `unknowns[]`: что мы не знаем (и что нужно, чтобы узнать).
+
+**Пример (JSON):**
+
+```json
+{
+  "summary": "INC-...: payroll деградировал после деплоя. Гипотеза: миграция/схема. Дальше — безопасные проверки, затем эскалация.",
+  "timeline": [
+    {"time": "02:10", "event": "deploy payroll-service v1.2.3"},
+    {"time": "02:12", "event": "5xx spike started"}
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "summary": "failed DB migration / schema mismatch",
+      "confidence": "MEDIUM",
+      "why": ["errors mention missing column", "deploy shortly before incident"]
+    }
+  ],
+  "evidence": [
+    {"source": "logs", "snippet": "ERROR: column \"new_field\" does not exist"},
+    {"source": "dashboard", "link": "<URL>"}
+  ],
+  "next_checks": [
+    {"id": "C1", "description": "confirm migration status", "safe": true}
+  ],
+  "risk": {"data_risk": "unknown", "blast_radius": "payroll"},
+  "rollback": {"plan": "revert deploy (approval required)"},
+  "verification": {"success_criteria": ["5xx back to baseline", "latency p95 < <WINDOW>"]},
+  "requires_approval": {"required": true, "reason": "prod change / insufficient evidence"},
+  "unknowns": ["migration status", "rollback readiness"]
+}
+```
 
 ## 4) Типовые ошибки (анти‑паттерны)
 

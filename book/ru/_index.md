@@ -47,7 +47,7 @@ lastmod: 2026-01-21
 - [Глава 7: Безопасность и инфраструктура]({{< relref "chapters/07-security-infrastructure.md" >}})
 
 ### Кейс 3: Инцидент payroll (главы 8–10)
-- [Глава 8: Eval‑набор и Golden tests]({{< relref "chapters/08-eval-golden-tests.md" >}})
+- [Глава 8: Eval-набор и golden tests]({{< relref "chapters/08-eval-golden-tests.md" >}})
 - [Глава 9: Команды агентов и управление практикой]({{< relref "chapters/09-agent-team-governance.md" >}})
 - [Глава 10: Capstone]({{< relref "chapters/10-capstone-full-cycle.md" >}})
 

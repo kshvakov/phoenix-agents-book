@@ -162,7 +162,7 @@ build:
 - [Глава 7: Безопасность и инфраструктура](chapters/07-security-infrastructure.md) — базовая линия безопасности, IaC
 
 ### Кейс 3: Инцидент payroll (главы 8–10)
-- [Глава 8: Eval‑набор и Golden tests](chapters/08-eval-golden-tests.md) — измерение качества агентов
+- [Глава 8: Eval-набор и golden tests](chapters/08-eval-golden-tests.md) — измерение качества агентов
 - [Глава 9: Команды агентов и управление практикой](chapters/09-agent-team-governance.md) — масштабирование практики
 - [Глава 10: Capstone](chapters/10-capstone-full-cycle.md) — полный цикл от бизнес-задачи до продакшена
 
