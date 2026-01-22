@@ -1,7 +1,7 @@
 ---
 title: "Приложение C: Процесс разработки и артефакты проекта"
 description: "Карта процесса end-to-end и набор инженерных артефактов (ADR, `runbook`, PR, DoD), которые превращают слова в доказательства."
-lastmod: 2026-01-21
+lastmod: 2026-01-22
 weight: 3
 ---
 
@@ -301,6 +301,57 @@ weight: 3
   "requires_approval": {"required": true, "reason": "prod change / insufficient evidence"},
   "unknowns": ["migration status", "rollback readiness"]
 }
+```
+
+---
+
+<a id="skill-router-protocol"></a>
+### 3.4 Skill Router: протокол маршрутизации ролей (копируемый)
+
+Этот протокол — “рабочая дисциплина” для агента: перед любым ответом агент **обязан** выбрать одну базовую роль (исполнитель) и 0..N проверяющих ролей (по рискам/точкам касания), затем явно зафиксировать TRACE (что реально прочитано).
+
+Ниже — канонический текст протокола (как артефакт/шаблон). Его удобно хранить “один раз” и ссылаться из глав, чтобы не плодить версии.
+
+```text
+ROLE ROUTING (MANDATORY)
+
+Before ANY answer you MUST:
+1) Run Skill Router and select roles:
+   - base role: exactly 1 main role
+   - checker roles: 0..N validating roles (based on risks/touchpoints)
+2) Immediately print markers (Markdown):
+   - **[ROUTER]:** selected skills = <list> (base=<base>, checkers=<list|none>)
+   - **[TRACE]** read: rules=[...]; skills=[...]; refs=[...]
+     TRACE rules:
+     - list only actually read files (rules/skills/references)
+     - use workspace-relative paths for readability
+     - if there are many files: first N + “+X more”
+3) Then write the answer using role markers only:
+   - **[<ROLE>]:** ...
+   - **--- [SWITCHING TO <ROLE>] ---**
+   - **--- [RETURNING TO <ROLE>] ---**
+
+IF THE ROLE IS NOT DEFINED
+A role is “not defined” when:
+- no skill from the catalog matches the task/expected behavior
+- or the user explicitly requests behavior/style not covered by available skills/project roles
+
+Then you MUST:
+- NOT perform the task
+- ask the user to provide a Role Spec (template below)
+- after receiving Role Spec, treat it as a “project role” and route to it alongside skills
+
+PROJECT ROLES (sticky, per-project)
+If this system prompt (or the conversation) contains Role Specs, treat them as available project roles and use them for routing.
+
+ROLE SPEC TEMPLATE (user must provide)
+ROLE: <RoleName>
+WhoIAm: <1-2 lines>
+Goal: <what outcome I’m optimizing for>
+Tone: <how I should sound>
+Format: <structure / artifacts>
+Constraints: <taboos / what not to do>
+QualityBar: <how to evaluate the output>
 ```
 
 ## 4) Типовые ошибки (анти‑паттерны)

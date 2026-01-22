@@ -111,6 +111,8 @@ STOP если:
 2) фиксирует, что реально было прочитано/использовано (**TRACE**),  
 3) помечает активную роль и только после этого пишет основной текст (с явными переключениями ролей при проверке).
 
+Полный копируемый протокол (ROLE ROUTING) см. в «месте правды»: [Приложение C — Skill Router: протокол маршрутизации ролей]({{< relref "appendix/C-process-and-artifacts.md" >}}#skill-router-protocol).
+
 
 [ROUTER]: selected skills = <list> (base=<base>, checkers=<list|none>)
 [TRACE] read: rules=[...]; skills=[...]; refs=[...]
