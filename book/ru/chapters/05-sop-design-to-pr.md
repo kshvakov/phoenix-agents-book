@@ -7,7 +7,7 @@ weight: 5
 
 # Глава 5: SOP "дизайн → PR" с агентом
 
-## Пролог: Parts Unlimited, 2026. Проблема Brent
+## Пролог: Parts Unlimited, 2014. Проблема Brent
 
 В 2014 Bill Palmer столкнулся с проблемой, которая угрожала всему Phoenix Project.
 

@@ -7,7 +7,7 @@ weight: 7
 
 # Глава 7: Безопасность и инфраструктура (модель угроз + план изменений + откат)
 
-## Пролог: Parts Unlimited, 2026. Самодеятельное изменение Wes Davis
+## Пролог: Parts Unlimited, 2014. Самодеятельное изменение Wes Davis
 
 **Пятница под вечер.** Wes Davis (Lead Developer) нашёл баг в продакшене: API timeout установлен слишком низко, клиенты жалуются.
 
@@ -21,8 +21,6 @@ timeout: <NEW_TIMEOUT>  # было <OLD_TIMEOUT>
 # Deploy в production (без ревью, без тестирования)
 $ ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags deploy
 ```
-
-**Важно:** для Ansible deploy/scale/изменений обязателен dry-run `--check --diff` до apply, и перед apply — approval gate (decision packet → approval → apply → verification).
 
 Wes уехал домой.
 
