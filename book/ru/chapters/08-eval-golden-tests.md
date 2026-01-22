@@ -7,7 +7,7 @@ weight: 8
 
 # Глава 8: Eval-набор + golden tests (измерение качества агента)
 
-## Пролог: Parts Unlimited, 2026. Payroll-инцидент
+## Пролог: Parts Unlimited, 2014. Payroll-инцидент
 
 **Ночь, пятница.** У Lance Bishop звонит телефон.
 

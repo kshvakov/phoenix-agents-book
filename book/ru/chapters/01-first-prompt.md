@@ -8,7 +8,7 @@ weight: 1
 # Глава 1: Первый промпт + план проверки
 
 
-## Пролог: Parts Unlimited, 2026
+## Пролог: Parts Unlimited, 2014
 
 Помните Bill Palmer из "The Phoenix Project"?
 

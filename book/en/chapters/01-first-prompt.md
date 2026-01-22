@@ -7,7 +7,7 @@ weight: 1
 
 # Chapter 1: first prompt + verification plan
 
-## Prologue: Parts Unlimited, 2026
+## Prologue: Parts Unlimited, 2014
 
 Remember Bill Palmer from *The Phoenix Project*?
 
