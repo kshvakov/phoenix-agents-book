@@ -1,7 +1,7 @@
 ---
 title: "Глава 2: Системный промпт + ограничения + SOP диалога"
 description: "Как превратить разовый промпт в роль с guardrails: ограничения, условия остановки и воспроизводимый SOP диалога."
-lastmod: 2026-01-21
+lastmod: 2026-01-22
 weight: 2
 ---
 
@@ -112,6 +112,8 @@ STOP если:
 3) помечает активную роль и только после этого пишет основной текст (с явными переключениями ролей при проверке).
 
 Полный копируемый протокол (ROLE ROUTING) см. в «месте правды»: [Приложение C — Skill Router: протокол маршрутизации ролей]({{< relref "appendix/C-process-and-artifacts.md" >}}#skill-router-protocol).
+
+Практическая ремарка: при масштабировании на “длинные” автономные проекты именно дисциплина прозрачности (ROUTER/TRACE) помогает избегать дрейфа и “археологии чата”. См. [Cursor: Scaling long-running autonomous coding](https://cursor.com/blog/scaling-agents).
 
 
 [ROUTER]: selected skills = <list> (base=<base>, checkers=<list|none>)

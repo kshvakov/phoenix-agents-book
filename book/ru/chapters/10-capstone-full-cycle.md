@@ -231,6 +231,8 @@ Trade-offs:
 
 SOP в этой книге — это воспроизводимый процесс с контрольными точками. Для капстоуна достаточно короткой версии.
 
+Практическая ремарка: на “длинных” автономных проектах хорошо работает разделение ролей (planners/workers) и итерационный “judge” (арбитр), который решает, продолжать ли цикл и когда делать fresh start — а контрольные точки (gates) помогают держать качество и не допускать дрейф процесса. См. [Cursor: Scaling long-running autonomous coding](https://cursor.com/blog/scaling-agents).
+
 ### Артефакт: SOP “design → implementation → testing → PR”
 
 ```markdown
