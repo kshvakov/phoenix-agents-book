@@ -1479,4 +1479,4 @@ SOP делает откат **частью процесса**:
 
 ---
 
-[^agentskills-overview]: Открытый формат “Agent Skills”: что такое skills и как они работают (progressive disclosure): [Agent Skills Overview](https://agentskills.io/).
+[^agentskills-overview]: Открытый формат “Agent Skills”: что такое skills и как они работают: подгрузка по требованию. [Agent Skills Overview](https://agentskills.io/).
