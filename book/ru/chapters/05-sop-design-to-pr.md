@@ -91,7 +91,7 @@ Bill ответил честно: "Мы остановимся."
 - **Одна ответственность**: ровно 1 цель (“сформировать план тестирования”, “проверить риск данных”, “найти root cause падения тестов”).
 - **Входы**: какие артефакты требуются (дифф/PR, логи CI, ссылки на метрики, список файлов).
 - **Выход**: строгая структура (например: `findings[]`, `evidence[]`, `proposed_fix`, `verification_steps`, `stop_reason`).
-- **Ограничения**: read‑only по умолчанию; опасные действия только через STOP + approval.
+- **Ограничения**: read‑only по умолчанию; опасные действия только через STOP + подтверждение.
 - **Проверка**: что считается “done” (тесты зелёные, линтер без новых ошибок, воспроизведение подтверждено/опровергнуто).
 
 Анти‑паттерн: десятки “универсальных помощников” с расплывчатыми описаниями. Если роль не отличается по входам/выходам и критериям успеха — это не роль, а шум.
@@ -306,7 +306,7 @@ make test-unit
 - ⚠︎ Тест 3: аналитический запрос 55s → success (было на грани с 30s timeout)
 
 **Ручная проверка (нужна для аналитики):**
-- Деплой на стейджинг (Ansible: dry-run обязателен) → approval → apply:
+- Деплой на стейджинг (Ansible: dry-run обязателен) → подтверждение → apply:
   - `ansible-playbook -i inventories/staging playbooks/db-config.yml --check --diff`
   - `ansible-playbook -i inventories/staging playbooks/db-config.yml --diff`
 - Запустить смоук‑тест для аналитики: `./scripts/analytics-smoke.sh`
@@ -557,7 +557,7 @@ Brent тестирует изменение на staging:
 
 Ограничения безопасности:
 - Любые действия, которые меняют состояние production (деплой, перезапуск, миграции, изменение конфигов), выполняются только по утверждённому процессу и после явного подтверждения.
-- По умолчанию выполняй только анализ/поиск/сбор артефактов (read-only). Если для шага нужен доступ/команда — сначала поясни риск и запроси approval.
+- По умолчанию выполняй только анализ/поиск/сбор артефактов (read-only). Если для шага нужен доступ/команда — сначала поясни риск и запроси подтверждение.
 - Не включай секреты/PII в вывод и артефакты; используй маскирование и ссылки.
 
 Задача: пройти контрольная точка 1 → контрольная точка 2 → контрольная точка 3 → контрольная точка 4
@@ -740,12 +740,12 @@ Running 87 tests... OK (0m 45s)
 # Агент сделал деплой на staging
 $ ansible-playbook -i inventories/staging playbooks/report-service.yml --tags deploy --check --diff --extra-vars "report_service_version=<NEW_VERSION>"
 
-# Decision packet + approval gate (даже для staging — чтобы паттерн не “сломался” при переносе в production):
+# Пакет решения + контрольная точка подтверждения (даже для staging — чтобы паттерн не “сломался” при переносе в production):
 # - dry-run показал ожидаемые изменения
 # - запроси подтверждение у ответственного за окружение/релиз
 # - STOP без подтверждения
 #
-# Apply (после approval):
+# Apply (после подтверждения):
 $ ansible-playbook -i inventories/staging playbooks/report-service.yml --tags deploy --diff --extra-vars "report_service_version=<NEW_VERSION>"
 Deploy report-service: OK
 
@@ -787,7 +787,7 @@ max = 18 (пик на тесте 3, безопасный запас)
 - Подключения к БД: пик 18/100 (безопасно)
 
 ### План отката
-Dry-run (обязателен) → approval → apply:
+Dry-run (обязателен) → подтверждение → apply:
 
 `ansible-playbook -i inventories/production playbooks/report-service.yml --tags rollback --check --diff --extra-vars "report_service_version=<PREV_VERSION>"`
 

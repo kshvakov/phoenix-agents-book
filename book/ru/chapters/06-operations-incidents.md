@@ -82,7 +82,7 @@ Brent ответил: "Пробовал. Написал 10 страниц. Но 
 
 Практический ориентир: выход Debugger — это не “мнение”, а проверяемый вклад в пакет решения (decision packet): что именно сломано, какие доказательства это подтверждают, где точка отказа и как проверить исправление.
 
-Оркестратор может запускать Debugger параллельно с “сбором фактов” (логами/метриками), но применять рискованные действия должен только после review/approval.
+Оркестратор может запускать Debugger параллельно с “сбором фактов” (логами/метриками), но применять рискованные действия должен только после ревью/подтверждения.
 
 ---
 
@@ -202,16 +202,16 @@ IF процесс ожидаемый AND ошибок в логах нет THEN:
 }
 ```
 
-**Approval gate:** STOP. Не выполняй restart, пока не получено явное approval.
+**Контрольная точка подтверждения:** `STOP`. Не выполняй restart, пока не получено явное подтверждение.
 
 **Команды:**
 
-0. Approval gate:
+0. Контрольная точка подтверждения:
 - Сформируй пакет решения (см. выше)
-- Запроси approval у дежурного/процесса
-- **STOP**, если approval не получен
+- Запроси подтверждение у дежурного/процесса
+- **STOP**, если подтверждение не получено
 
-1. (После approval) Graceful restart:
+1. (После подтверждения) Graceful restart:
 ```bash
 ssh api-gateway-03 "sudo systemctl restart api-gateway"
 ```
@@ -264,7 +264,7 @@ ssh api-gateway-03 "sudo systemctl is-active --quiet api-gateway"  # exit 0 ес
 }
 ```
 
-**Approval gate:** STOP. Не выполняй apply, пока не получено явное approval.
+**Контрольная точка подтверждения:** `STOP`. Не выполняй apply, пока не получено явное подтверждение.
 
 **Команды:**
 
@@ -281,9 +281,9 @@ ansible-inventory -i inventories/production --list | jq '.api_gateway.hosts | le
 # Сначала dry-run (проверка без применения) — ОБЯЗАТЕЛЬНО:
 ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --check --diff --extra-vars "api_gateway_instances=<CURRENT_PLUS_2>"
 
-# Approval gate: запроси approval и STOP без него.
+# Контрольная точка подтверждения: запроси подтверждение и STOP без него.
 #
-# Затем — только после approval — apply (без --check):
+# Затем — только после подтверждения — apply (без --check):
 ansible-playbook -i inventories/production playbooks/api-gateway.yml --tags scale --diff --extra-vars "api_gateway_instances=<CURRENT_PLUS_2>"
 ```
 
@@ -351,13 +351,13 @@ curl -s http://api-gateway-03/health | jq '.status'
 
 1. **Скопируй промпт** в чат
 2. **Симулируй инцидент** (или дождись реального)
-3. **Агент выполняет сценарий**: диагностика автономно; опасные команды — только после approval
+3. **Агент выполняет сценарий**: диагностика автономно; опасные команды — только после подтверждения
 4. **Агент генерирует timeline** + анализ первопричины
 5. **Verification:** инцидент решён быстро, без лишней ручной координации
 
 ### Пример результата
 
-Агент выполнил сценарий реагирования с явным approval gate для опасных действий:
+Агент выполнил сценарий реагирования с явной контрольной точкой подтверждения для опасных действий:
 
 ```bash
 ## Alert fired
@@ -376,15 +376,15 @@ ssh api-gateway-03 "top -b -n 1 | head -<N>"
 # - Hypothesis: memory leak
 # - Decision: GO TO Step 2a (restart)
 
-# Step 2a: Пакет решения + контрольная точка approval (STOP)
+# Step 2a: Пакет решения + контрольная точка подтверждения (STOP)
 # Пакет решения сформирован (доказательства/предусловия/риск/откат/план проверки), requires_approval=true
 echo "STOP: требуется approval на restart api-gateway на api-gateway-03"
 echo "Запрос approval: подтвердите restart (кратковременный impact допустим?)"
 
-# Human approval (пример)
+# Подтверждение человека (пример)
 echo "APPROVED by on-call: OK"
 
-# Step 2a: Fix (restart) — только после approval
+# Step 2a: Fix (restart) — только после подтверждения
 ssh api-gateway-03 "sudo systemctl restart api-gateway"
 api-gateway restarted (approved)
 
@@ -834,11 +834,11 @@ else:
 
 **Команды:**
 ```bash
-# Пакет решения + контрольная точка approval:
+# Пакет решения + контрольная точка подтверждения:
 # - Сформируй пакет решения (доказательства/риск/откат/план проверки)
-# - Запроси approval и STOP без него
+# - Запроси подтверждение и STOP без него
 #
-# Graceful restart (после approval)
+# Graceful restart (после подтверждения)
 ssh {{host}} "sudo systemctl restart {{service}}"
 
 # Wait for service to become active (max <WINDOW>)
@@ -859,9 +859,9 @@ ssh {{host}} "sudo systemctl is-active --quiet {{service}}"
 # Dry-run (обязателен):
 ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<CURRENT_PLUS_2>"
 
-# Approval gate: запроси approval и STOP без него.
+# Контрольная точка подтверждения: запроси подтверждение и STOP без него.
 #
-# Apply (после approval):
+# Apply (после подтверждения):
 ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<CURRENT_PLUS_2>"
 ```
 
@@ -960,9 +960,9 @@ else:
 # Dry-run (обязателен):
 ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --check --diff --extra-vars "{{service}}_instances=<CURRENT_DIV_2>"
 
-# Approval gate: запроси approval и STOP без него.
+# Контрольная точка подтверждения: запроси подтверждение и STOP без него.
 #
-# Apply (после approval):
+# Apply (после подтверждения):
 ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scale --diff --extra-vars "{{service}}_instances=<CURRENT_DIV_2>"
 ```
 
@@ -975,11 +975,11 @@ ansible-playbook -i inventories/production playbooks/{{service}}.yml --tags scal
 
 **Команды:**
 ```bash
-# Пакет решения + контрольная точка approval:
+# Пакет решения + контрольная точка подтверждения:
 # - Сформируй пакет решения (доказательства/риск/откат/план проверки)
-# - Запроси approval и STOP без него
+# - Запроси подтверждение и STOP без него
 #
-# Restart service (kills leaked connections) — после approval
+# Restart service (kills leaked connections) — после подтверждения
 ssh {{host}} "sudo systemctl restart {{service}}"
 ssh {{host}} "sudo systemctl is-active --quiet {{service}}"
 ```
@@ -1059,9 +1059,9 @@ else:
 
 **Вариант 1:** Освободить место за счёт логов (предпочтительно “штатными” механизмами)
 ```bash
-# Пакет решения + контрольная точка approval:
+# Пакет решения + контрольная точка подтверждения:
 # - Сначала собери факты (df/du), оцени риск потери логов
-# - Запроси approval и STOP без него
+# - Запроси подтверждение и STOP без него
 #
 # Важно: не удаляй логи “в лоб”, пока не понял, что именно можно безопасно ротацировать/сжимать.
 # Для journald:
@@ -1076,9 +1076,9 @@ ssh {{host}} "df -h"
 
 **Вариант 2:** Очистить временные файлы (консервативно)
 ```bash
-# Пакет решения + контрольная точка approval:
+# Пакет решения + контрольная точка подтверждения:
 # - Оцени влияние на процессы/расследование
-# - Запроси approval и STOP без него
+# - Запроси подтверждение и STOP без него
 #
 # Важно: не используй широкие удаления вида `rm -rf /tmp/*` — это легко ломает процессы и расследования.
 # Предпочтительно: штатная очистка tmpfiles (если используется systemd):
@@ -1086,9 +1086,9 @@ ssh {{host}} "sudo systemd-tmpfiles --clean"
 ssh {{host}} "df -h"
 ```
 
-### Пакет решения + approval для очистки (обязательно)
+### Пакет решения + подтверждение для очистки (обязательно)
 
-Перед любым `vacuum/logrotate/tmpfiles --clean` сформируй пакет решения и запроси approval:
+Перед любым `vacuum/logrotate/tmpfiles --clean` сформируй пакет решения и запроси подтверждение:
 
 ```json
 {
@@ -1110,7 +1110,7 @@ ssh {{host}} "df -h"
 }
 ```
 
-**Approval gate:** STOP. Не выполнять очистку до approval.
+**Контрольная точка подтверждения:** `STOP`. Не выполнять очистку до подтверждения.
 
 **Условия остановки:**
 - Если disk usage всё ещё > 85% → ESCALATE (cleanup не помог)
