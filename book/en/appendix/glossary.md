@@ -71,6 +71,7 @@ This book often uses placeholders (stub values) in angle brackets—for example,
 ## Terms and artifacts
 
 - **AI agent**: an autonomous task executor built on a model/tooling that operates in a role under guardrails, produces artifacts, runs checks, and escalates under uncertainty/risk.
+- **Rules (project rules)**: always-on project context and conventions (for example: build/test commands, style rules, security workflow). The point is to give the team and the agent stable guardrails instead of re-explaining the same baseline constraints in every chat.
 - **Allowlist**: a list of permitted actions/commands/operations. Everything else is denied by default.
 - **Audit trail**: a record of who/what/when (commands, changes, decisions, artifacts) to support investigation and control.
 - **Baseline**: a "before" reference point for metrics/quality/speed.
@@ -107,6 +108,7 @@ This book often uses placeholders (stub values) in angle brackets—for example,
 - **p95 / p99**: percentiles; p95 is the value below which 95% of observations fall.
 - **Prompt injection**: an attack/error where an agent treats external data (logs, tickets, comments) as instructions and violates rules.
 - **Prompt template**: a repeatable task framing structure (context -> guardrails -> DoD -> verification plan -> expected output).
+- **Commands (workflow shortcuts)**: repeatable workflows packaged so you can run them as a single invocation (for example: open a PR, run checks, generate a report). This is useful for high-frequency scenarios where consistency of steps and output format matters.
 - **Redaction**: masking/removing secrets and PII from logs/artifacts.
 - **Regression**: quality/metric degradation after a change.
 - **Resume**: continuing an earlier worker run with its saved context/state.

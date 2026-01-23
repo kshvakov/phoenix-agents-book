@@ -79,6 +79,37 @@ Create an SOP for a typical task: "Increase the DB connection timeout in the leg
 
 For humans, AC can often be "stretched" through context and conversation. That does not work with agents. So **DoD + verification plan + STOP is the minimal contract**.
 
+### Practice: context management (don’t drown the agent)
+
+Most of the time you do **not** need to paste half the repository into the chat. That adds noise and often makes outputs worse.
+
+- If you know the **exact place** (file/directory/component), point the agent there.
+- If you don’t, ask the agent to **find the relevant files first** (search/semantic search) and list them before changing anything.
+- Avoid dumping “everything”; prefer 1–3 precise artifacts plus an explicit question: “What else do you need to read?”
+
+For one example implementation of these ideas (including branch/diff-oriented context), see [Cursor: Best practices for coding with agents](https://cursor.com/blog/agent-best-practices).
+
+### Practice: if it’s going sideways, go back to the plan (don’t patch via chat)
+
+If the agent is building the wrong thing (wrong scope, missed constraints or DoD, wrong priorities), it is often faster to:
+
+- revert the changes,
+- tighten the plan (inputs, guardrails, done criteria, verification),
+- rerun the loop with the updated plan.
+
+This reduces drift and “chat archaeology.” See “Starting over from a plan” in [Cursor: Best practices for coding with agents](https://cursor.com/blog/agent-best-practices).
+
+### Practice: a TDD loop as a hard iteration target
+
+When you can test the behavior, a short TDD loop gives the agent a concrete target:
+
+- write/update tests (or golden tests) for the expected behavior,
+- run them and **confirm they’re failing** (so the check is real),
+- implement the minimal fix until the suite is green,
+- attach evidence (PR + CI outputs) as proof.
+
+This fits naturally into our Gates 2–3 (implementation → testing).
+
 ### Mini-guide: how to describe worker roles (specialized agents)
 
 When a task is long and heterogeneous (design → implementation → tests → PR), a single general-purpose agent tends to blur. It is more practical to work through multiple narrow worker roles, where each produces an output in a fixed format.

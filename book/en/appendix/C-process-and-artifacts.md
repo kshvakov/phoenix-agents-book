@@ -112,6 +112,8 @@ Note: if you use Agent Skills (`SKILL.md` folders) as a portable procedure forma
   - **Done when:** phases, dependencies, critical path, and gates are defined.  
   - **See also:** Chapter 3.
 
+Practical note: treat the plan as a **reviewable artifact**, not as “chat output.” You can revise it and rerun the execution loop: if the agent is building the wrong thing, it’s often faster to restart from a tighter plan (inputs/guardrails/DoD/verification) than to patch the output through back-and-forth. See [Cursor: Best practices for coding with agents](https://cursor.com/blog/agent-best-practices) (sections on planning and “starting over from a plan”).
+
 ### 2.3.1 Optional strengthening by risk/maturity triggers
 
 - **Risk register (as a separate artifact)**  
@@ -362,6 +364,8 @@ If one agent “drowns” in a large project, the natural move is parallelism. I
 - **Judge:** decides whether to continue the iteration and when to do a fresh start to control drift/tunnel vision.
 
 Reference: [Cursor: Scaling long-running autonomous coding](https://cursor.com/blog/scaling-agents).
+
+Note: in practice, a “fresh start” often means **restarting from the plan** (plan-first): refine requirements/guardrails, update the plan, and rerun the loop, instead of patching outputs in chat. See [Cursor: Best practices for coding with agents](https://cursor.com/blog/agent-best-practices).
 
 ## 4) Common mistakes (anti-patterns)
 

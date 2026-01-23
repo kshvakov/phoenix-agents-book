@@ -500,7 +500,7 @@ STOP CONDITIONS:
 
 ### How to make the plan delegatable (a handoff contract for sub-tasks)
 
-A plan v1 is useful for humans. It becomes especially valuable when you start delegating tasks to agents/workers who operate in separate context and do not “remember” your main conversation.
+A plan v1 is useful for humans. It becomes especially valuable when you start delegating tasks to agents/workers who operate in separate contexts and do not “remember” your main conversation.
 
 Practical rule: if a task can be delegated to a specialized worker role, it must be self-contained and verifiable.
 
@@ -512,6 +512,21 @@ Practical rule: if a task can be delegated to a specialized worker role, it must
 - **DoD:** how to verify the task is actually done (test, metric, checklist).
 
 That is why a good plan v1 must include not just “what to do” but also “how to check it”—otherwise delegation becomes faith in prose.
+
+### Plan-first as the default for non-trivial work
+
+If your task touches multiple files, has unclear requirements, or has meaningful risk, it is often better to **not start with code**.
+
+Start by writing a **reviewable execution plan** that:
+
+- lists the likely **areas impacted** (files/directories/components),
+- captures **clarifying questions** before implementation,
+- lays out steps and artifacts with **DoD/verification** (what “done” means and how you will prove it),
+- explicitly marks where **human approval** is required.
+
+Practical upside: if the agent goes off-track, it is often faster and cleaner to **restart from the plan**, tighten the constraints/DoD, and rerun the loop, rather than trying to fix it through chat back-and-forth.
+
+See “Start with plans” and “Starting over from a plan” in [Cursor: Best practices for coding with agents](https://cursor.com/blog/agent-best-practices) as one example implementation of this discipline.
 
 #### When a sub-task stabilizes, package it as a “skill”
 
