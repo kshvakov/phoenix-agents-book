@@ -428,7 +428,7 @@ Lance calls such artifacts **Agent Skills**. They are not “a feature”, not �
 An Agent Skill is a folder with one main document (`SKILL.md`) and optional references:
 
 ```text
-incident-triage/
+payroll-triage/
   SKILL.md
   references/
   assets/
@@ -436,10 +436,15 @@ incident-triage/
 
 The main discipline is not folder structure, but the content of `SKILL.md`: it must answer “when to use it”, “how to execute”, “what counts as proof”, “when to STOP”.
 
-Below is a shortened example of what Lance captures after the payroll incident (not as a textbook, but as something people will actually copy tomorrow):
+Below is a shortened example of what Lance captures after the payroll incident (not as a textbook, but as something people will actually copy tomorrow). In Agent Skills terms, this would live in `payroll-triage/SKILL.md` (and the `name` in frontmatter must match the directory name):
 
 ```text
-# SKILL: Payroll incident triage (P0)
+---
+name: payroll-triage
+description: Triages P0 payroll incidents into a decision packet: facts vs hypotheses, risks, and next checks with explicit STOP conditions. Use when payroll is down, 5xx spikes, or logs suggest schema/migration mismatch (e.g., "column does not exist").
+---
+
+# Payroll incident triage (P0)
 
 ## When to use
 - payroll down / 5xx spike / suspected schema/migration issues
